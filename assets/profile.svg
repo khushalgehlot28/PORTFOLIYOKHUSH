@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Developer workspace illustration</title>
+  <desc id="desc">A soft lavender illustration of a laptop and interface panels on a desk.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9e3ff"/><stop offset="1" stop-color="#b9aae9"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#302a49"/><stop offset="1" stop-color="#5f5487"/></linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="640" cy="180" r="110" fill="#fff" opacity=".38"/>
+  <rect x="110" y="245" width="580" height="370" rx="28" fill="#fff" opacity=".72"/>
+  <rect x="150" y="285" width="500" height="270" rx="16" fill="url(#screen)"/>
+  <circle cx="182" cy="317" r="7" fill="#c9b9f4"/><circle cx="207" cy="317" r="7" fill="#c9b9f4" opacity=".65"/>
+  <rect x="190" y="370" width="220" height="18" rx="9" fill="#d8cbff"/><rect x="190" y="410" width="320" height="12" rx="6" fill="#a99bc9" opacity=".75"/>
+  <rect x="190" y="452" width="150" height="12" rx="6" fill="#a99bc9" opacity=".55"/>
+  <path d="M80 660h640l-62 80H142z" fill="#6c638d" opacity=".75"/>
+  <rect x="300" y="705" width="200" height="18" rx="9" fill="#fff" opacity=".65"/>
+  <path d="M160 820c98-78 174-92 240-42 76 58 142 31 240-42v160H160z" fill="#8c78d8" opacity=".5"/>
+</svg>
