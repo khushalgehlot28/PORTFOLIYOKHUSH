@@ -83,6 +83,33 @@ function renderTiles(container, projects) {
   });
 }
 
+function renderWorkFilters() {
+  const filterBar = document.querySelector('#workFilters');
+  const categories = ['All', ...new Set(state.projects.map((project) => project.category))];
+  categories.forEach((category, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `filter-button${index === 0 ? ' active' : ''}`;
+    button.textContent = category;
+    button.setAttribute('aria-pressed', String(index === 0));
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.filter-button').forEach((item) => {
+        const active = item === button;
+        item.classList.toggle('active', active);
+        item.setAttribute('aria-pressed', String(active));
+      });
+      const filteredProjects = category === 'All'
+        ? state.projects
+        : state.projects.filter((project) => project.category === category);
+      const workGrid = document.querySelector('#workGridFull');
+      workGrid.replaceChildren();
+      renderTiles(workGrid, filteredProjects);
+      initRevealObserver(workGrid);
+    });
+    filterBar.append(button);
+  });
+}
+
 function renderPosts() {
   const list = document.querySelector('#postList');
   if (!state.posts.length) {
@@ -240,7 +267,9 @@ function setTheme(theme) {
 
 function initTheme() {
   let savedTheme = 'light';
-  try { savedTheme = localStorage.getItem('kg-theme') || 'light'; } catch (error) { /* Storage can be unavailable in privacy mode. */ }
+  try {
+    savedTheme = localStorage.getItem('kg-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  } catch (error) { savedTheme = 'light'; }
   setTheme(savedTheme);
   themeButton.addEventListener('click', () => {
     const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -288,11 +317,12 @@ function initForm() {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (form.elements.website.value) return;
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
     button.textContent = 'Sending...';
     if (!config.formspreeEndpoint) {
-      status.textContent = 'The form is ready. Add your Formspree endpoint in js/app.js to receive messages.';
+      status.textContent = 'The form is ready, but it needs a Formspree endpoint in js/app.js before messages can be delivered.';
       button.disabled = false;
       button.textContent = 'Send message';
       return;
@@ -308,12 +338,19 @@ function initForm() {
   });
 }
 
+function initRevealObserver(scope = document) {
+  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('revealed')), { threshold: 0.12 });
+  scope.querySelectorAll('.tile, .testi-card, .post').forEach((element) => {
+    element.classList.add('reveal');
+    observer.observe(element);
+  });
+}
+
 function initEnhancements() {
   document.querySelector('.case-close').addEventListener('click', () => document.querySelector('#caseStudy').close());
   document.querySelector('#caseStudy').addEventListener('click', (event) => { if (event.target === event.currentTarget) event.currentTarget.close(); });
   document.querySelector('.back-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('revealed')), { threshold: 0.12 });
-  document.querySelectorAll('.tile, .testi-card, .post').forEach((element) => { element.classList.add('reveal'); observer.observe(element); });
+  initRevealObserver();
 }
 
 function init() {
@@ -323,6 +360,7 @@ function init() {
   renderMarquee();
   renderTiles(document.querySelector('#homeWorkPreview'), state.projects.slice(0, 4));
   renderTiles(document.querySelector('#workGridFull'), state.projects);
+  renderWorkFilters();
   renderPosts();
   renderTestimonials();
   renderSocials();
