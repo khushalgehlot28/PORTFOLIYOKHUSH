@@ -10,15 +10,20 @@ const state = {
   routes: ['home', 'about', 'work', 'blog', 'testimonials', 'contact'],
   skills: ['Frontend Development', 'Responsive UI', 'JavaScript', 'Accessible Design', 'Product Thinking', 'Clean Systems'],
   projects: [
-    { className: 'tile-1', category: 'Frontend', title: 'StudioNova Identity', description: 'A visual identity system and responsive landing page concept for a creative studio.', image: 'khushal-portrait.jpg', imageAlt: 'Portrait photograph used as a creative portfolio visual', imageWidth: 6048, imageHeight: 8064, technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Create a confident digital home for a small creative studio.', process: 'Defined the visual direction, built reusable layout patterns, and tuned responsive states.', features: ['Responsive layout', 'Reusable visual tokens', 'Accessible navigation'], github: '', liveDemo: '' },
-    { className: 'tile-2', category: 'Product UI', title: 'Finly Mobile UI', description: 'A calm personal-finance interface concept focused on clarity and quick daily decisions.', image: 'IMG_3161.JPG', imageAlt: 'Creative project photograph for the Finly interface concept', imageWidth: 3024, imageHeight: 4032, technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Make everyday money tracking feel approachable.', process: 'Mapped the core flow, designed key states, and implemented a mobile-first interface.', features: ['Mobile-first UI', 'Clear data hierarchy', 'Empty and active states'], github: '', liveDemo: '' },
-    { className: 'tile-3', category: 'Content', title: 'Behind the Build', description: 'A content format for documenting design decisions, experiments, and the work behind the screen.', image: 'IMG_3154.JPG', imageAlt: 'Creative process photograph for Behind the Build', imageWidth: 6048, imageHeight: 8064, technologies: ['Content systems', 'Editing', 'Storytelling'], goal: 'Turn the making process into useful, honest content.', process: 'Outlined repeatable formats, created a visual rhythm, and documented the workflow.', features: ['Repeatable format', 'Process storytelling', 'Consistent visual language'], github: '', liveDemo: '' },
-    { className: 'tile-4', category: 'Web', title: 'Portfolio Redesign', description: 'This portfolio: a lightweight single-page experience with accessible navigation and an editable data layer.', image: 'IMG_2225.JPG', imageAlt: 'Portfolio workspace photograph', imageWidth: 6048, imageHeight: 8064, technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Build a personal site that is easy to update and pleasant to explore.', process: 'Separated styles, centralized content, and added responsive interaction patterns.', features: ['Hash navigation', 'Theme persistence', 'Case-study modal', 'Reduced-motion support'], github: '', liveDemo: '' },
+    { className: 'tile-1', category: 'Frontend', title: 'StudioNova Identity', description: 'A visual identity system and responsive landing page concept for a creative studio.', technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Create a confident digital home for a small creative studio.', process: 'Defined the visual direction, built reusable layout patterns, and tuned responsive states.', features: ['Responsive layout', 'Reusable visual tokens', 'Accessible navigation'], github: '', liveDemo: '' },
+    { className: 'tile-2', category: 'Product UI', title: 'Finly Mobile UI', description: 'A calm personal-finance interface concept focused on clarity and quick daily decisions.', technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Make everyday money tracking feel approachable.', process: 'Mapped the core flow, designed key states, and implemented a mobile-first interface.', features: ['Mobile-first UI', 'Clear data hierarchy', 'Empty and active states'], github: '', liveDemo: '' },
+    { className: 'tile-3', category: 'Content', title: 'Behind the Build', description: 'A content format for documenting design decisions, experiments, and the work behind the screen.', technologies: ['Content systems', 'Editing', 'Storytelling'], goal: 'Turn the making process into useful, honest content.', process: 'Outlined repeatable formats, created a visual rhythm, and documented the workflow.', features: ['Repeatable format', 'Process storytelling', 'Consistent visual language'], github: '', liveDemo: '' },
+    { className: 'tile-4', category: 'Web', title: 'Portfolio Redesign', description: 'This portfolio: a lightweight single-page experience with accessible navigation and an editable data layer.', technologies: ['HTML', 'CSS', 'JavaScript'], goal: 'Build a personal site that is easy to update and pleasant to explore.', process: 'Separated styles, centralized content, and added responsive interaction patterns.', features: ['Hash navigation', 'Theme persistence', 'Case-study modal', 'Reduced-motion support'], github: '', liveDemo: '' },
     { className: 'tile-5', category: 'Campaign', title: 'Launch Week Content', description: 'A short-form content system designed to keep a product launch coherent across several posts.', technologies: ['Content strategy', 'Visual design', 'Editing'], goal: 'Create a clear narrative across a fast launch schedule.', process: 'Grouped the story into stages, created a repeatable template, and refined the publishing rhythm.', features: ['Content framework', 'Campaign consistency', 'Fast production workflow'], github: '', liveDemo: '' },
     { className: 'tile-6', category: 'Tooling', title: 'CLI Helper', description: 'A small developer-tool concept focused on removing repetitive setup steps from daily work.', technologies: ['JavaScript', 'Node.js'], goal: 'Make a repetitive developer workflow shorter and easier to remember.', process: 'Identified the repeated path, shaped a small command surface, and tested edge cases.', features: ['Focused commands', 'Clear feedback', 'Expandable structure'], github: '', liveDemo: '' },
     { className: 'tile-7', category: 'Systems', title: 'Aster Design System', description: 'A component foundation for keeping a growing product interface consistent and flexible.', technologies: ['CSS', 'Accessibility', 'Documentation'], goal: 'Give a small team shared patterns without slowing them down.', process: 'Audited repeated UI, defined tokens, and documented behavior rather than only appearance.', features: ['Design tokens', 'Component states', 'Usage documentation'], github: '', liveDemo: '' }
   ],
-  posts: [],
+  posts: [
+    { date: 'Experience 01', category: 'Frontend', title: 'Finding a visual direction before writing the first line', excerpt: 'Working on StudioNova taught me that a strong interface starts with a clear visual system. I explored tone, spacing, and reusable patterns before building the responsive page.', readingTime: '4 min read', image: 'khushal-portrait.jpg', imageAlt: 'Portrait photograph from the StudioNova visual exploration', imageWidth: 6048, imageHeight: 8064 },
+    { date: 'Experience 02', category: 'Product UI', title: 'Making finance interfaces feel less intimidating', excerpt: 'Finly was an exercise in reducing friction. Mapping the daily flow first helped me decide which information deserved attention and which could stay quiet.', readingTime: '3 min read', image: 'IMG_3161.JPG', imageAlt: 'Creative project photograph from the Finly interface exploration', imageWidth: 3024, imageHeight: 4032 },
+    { date: 'Experience 03', category: 'Process', title: 'Why documenting the work improves the work', excerpt: 'Behind the Build grew from a simple habit: explain the decision, not just the result. Writing down the process made the visual language more consistent.', readingTime: '3 min read', image: 'IMG_3154.JPG', imageAlt: 'Creative process photograph from a behind-the-scenes exploration', imageWidth: 6048, imageHeight: 8064 },
+    { date: 'Experience 04', category: 'Web', title: 'Lessons from rebuilding my own portfolio', excerpt: 'This redesign has been a practical test of lightweight architecture, keyboard-friendly navigation, responsive layout, and making a personal site easier to maintain.', readingTime: '5 min read', image: 'IMG_2225.JPG', imageAlt: 'Portfolio workspace photograph from the redesign process', imageWidth: 6048, imageHeight: 8064 }
+  ],
   testimonials: []
 };
 
@@ -61,18 +66,6 @@ function renderTiles(container, projects) {
     tile.tabIndex = 0;
     tile.setAttribute('role', 'button');
     tile.setAttribute('aria-label', `View case study: ${project.title}`);
-    if (project.image) {
-      const image = document.createElement('img');
-      image.className = 'tile-image';
-      image.src = project.image;
-      image.alt = project.imageAlt;
-      image.width = project.imageWidth;
-      image.height = project.imageHeight;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      image.addEventListener('error', () => image.remove());
-      tile.append(image);
-    }
     addText(tile, 'span', project.category, 'tag');
     addText(tile, 'span', String(index + 1).padStart(2, '0'), 'tile-index').setAttribute('aria-hidden', 'true');
     addText(tile, 'h3', project.title);
@@ -136,12 +129,23 @@ function renderPosts() {
   state.posts.forEach((post) => {
     const item = document.createElement('article');
     item.className = 'post';
+    if (post.image) {
+      const image = document.createElement('img');
+      image.className = 'post-image';
+      image.src = post.image;
+      image.alt = post.imageAlt;
+      image.width = post.imageWidth;
+      image.height = post.imageHeight;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      item.append(image);
+    }
     addText(item, 'span', post.date, 'date');
     const content = document.createElement('div');
     addText(content, 'h3', post.title);
     addText(content, 'p', `${post.excerpt} ${post.category} / ${post.readingTime}`);
     item.append(content);
-    addText(item, 'span', 'Coming soon', 'post-link');
+    addText(item, 'span', 'Read experience', 'post-link');
     list.append(item);
   });
   list.classList.remove('is-loading');

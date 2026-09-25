@@ -50,14 +50,15 @@
   <link rel="stylesheet" href="css/variables.css?v=20260925">
   <link rel="stylesheet" href="css/styles.css?v=20260925">
   <link rel="stylesheet" href="css/components.css?v=20260925">
-  <script src="js/app.js?v=20260925" type="module" defer></script>
+  <script src="js/app.js?v=20260925-blog" type="module" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header class="site-nav">
+    <div class="nav-bg" aria-hidden="true">
     <div class="nav-inner">
-      <a class="brand" href="#home" aria-label="Khushal Gehlot home">Khushal<span></span></a>
+      <a class="brand" href="#home" aria-label="Khushal Gehlot home">KHUSHAL<span></span></a>
 
       <nav class="links" id="navLinks" aria-label="Primary navigation" role="tablist">
         <button id="nav-home" type="button" role="tab" aria-controls="page-home" aria-selected="true" data-page="home" class="active">Home</button>
@@ -81,6 +82,7 @@
           </svg>
         </button>
       </div>
+    </div>
     </div>
   </header>
 
@@ -176,7 +178,7 @@
       <section>
         <div class="kicker">Work</div>
         <h2 class="section-heading">Selected builds and experiments.</h2>
-        <p class="lede">A selection of interface, frontend, content, and systems work. Open a project to see the thinking behind it.</p>
+        <p class="lede">A selection of interface, frontend, content, and systems work. Open a project to see the thinking behind it, then visit Blog for the visual process stories.</p>
         <div class="filter-bar" id="workFilters" aria-label="Filter projects"></div>
         <div class="work-grid is-loading" id="workGridFull" aria-busy="true"></div>
       </section>
@@ -185,7 +187,7 @@
     <section class="page" id="page-blog" role="tabpanel" aria-labelledby="nav-blog" tabindex="-1">
       <section>
         <div class="kicker">Writing</div>
-        <h2 class="section-heading">Notes on design, code, and building in public.</h2>
+        <h2 class="section-heading">Visual notes from the process behind the work.</h2>
         <div class="post-list is-loading" id="postList" aria-busy="true"></div>
       </section>
     </section>
