@@ -207,7 +207,7 @@
             <h2 class="section-heading contact-heading">Have a project in mind?</h2>
             <p class="lede contact-lede">Tell me what you are building, learning, or exploring. Share a little context and I will reply with a thoughtful next step.</p>
 
-            <form id="contactForm" class="contact-form" novalidate>
+            <form id="contactForm" class="contact-form" action="https://formspree.io/f/mkjgzygj" method="POST" novalidate>
               <div class="field field-trap" aria-hidden="true">
                 <label for="website">Website</label>
                 <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
@@ -257,6 +257,7 @@
 
               <button class="btn btn-primary" type="submit">Send message <span aria-hidden="true">-&gt;</span></button>
               <p class="contact-note" id="contactStatus" role="status" aria-live="polite">I usually reply within two working days. Your message stays private.</p>
+              <div class="form-errors" id="formErrors" role="alert" aria-live="assertive"></div>
             </form>
           </div>
 

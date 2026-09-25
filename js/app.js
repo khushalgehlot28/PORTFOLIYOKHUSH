@@ -364,24 +364,56 @@ function initNavigation() {
 function initForm() {
   const form = document.querySelector('#contactForm');
   const status = document.querySelector('#contactStatus');
+  const errors = document.querySelector('#formErrors');
+
+  function clearFormErrors() {
+    errors.replaceChildren();
+    form.querySelectorAll('[aria-invalid="true"]').forEach((field) => field.removeAttribute('aria-invalid'));
+    form.querySelectorAll('.field-error').forEach((message) => message.remove());
+  }
+
+  function showFormErrors(formErrors = []) {
+    clearFormErrors();
+    const messages = Array.isArray(formErrors) ? formErrors : [];
+    messages.forEach(({ field, message }) => {
+      const input = field ? form.elements[field] : null;
+      if (input) {
+        input.setAttribute('aria-invalid', 'true');
+        const messageElement = document.createElement('span');
+        messageElement.className = 'field-error';
+        messageElement.textContent = message;
+        input.closest('.field')?.append(messageElement);
+      }
+    });
+    const generalMessages = messages.filter(({ field }) => !field).map(({ message }) => message);
+    if (generalMessages.length) addText(errors, 'p', generalMessages.join(' '));
+    status.textContent = 'Please review the highlighted fields and try again.';
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form.checkValidity()) { form.reportValidity(); return; }
     if (form.elements.website.value) return;
+    clearFormErrors();
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
     button.textContent = 'Sending...';
     if (!config.formspreeEndpoint) {
-      status.textContent = 'The form is ready, but it needs a Formspree endpoint in js/app.js before messages can be delivered.';
+      status.textContent = 'The contact form is temporarily unavailable. Please try again later.';
       button.disabled = false;
       button.textContent = 'Send message';
       return;
     }
     try {
       const response = await fetch(config.formspreeEndpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error('Submission failed');
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showFormErrors(result.errors || [{ message: result.error || 'The message could not be sent.' }]);
+        return;
+      }
       status.textContent = 'Thanks! Your message has been sent successfully.';
       form.reset();
+      clearFormErrors();
     } catch (error) {
       status.textContent = 'Something went wrong. Please try again or use email.';
     } finally { button.disabled = false; button.textContent = 'Send message'; }

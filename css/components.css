@@ -82,6 +82,9 @@ nav.links button:focus-visible { outline: 2px solid var(--coral); outline-offset
 .field textarea { resize: vertical; min-height: 118px; }
 .field-trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .field input:focus, .field textarea:focus, .field select:focus { outline: 0; border-color: var(--coral); box-shadow: 0 0 0 4px color-mix(in srgb, var(--coral) 18%, transparent); }
+.field input[aria-invalid="true"], .field textarea[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--coral); }
+.field-error, .form-errors { color: var(--coral); font-size: 0.82rem; }
+.form-errors:empty { display: none; }
 .contact-note { color: var(--text-muted); font-size: 0.84rem; margin-top: 10px; }
 .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
 .contact-side { display: flex; flex-direction: column; justify-content: space-between; }
