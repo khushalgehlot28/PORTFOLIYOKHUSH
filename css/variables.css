@@ -4,12 +4,12 @@
   --bg-deep: #fff5ef;
   --surface: #ffffff;
   --surface-2: #fff8f2;
-  --coral: #b84f3f;
-  --amber: #d96b55;
-  --plum: #6f2f2f;
-  --nav-bg: #ff0000;
+  --coral: #a52f2f;
+  --amber: #d45a4a;
+  --plum: #6b1f1f;
+  --nav-bg: #a52f2f;
   --nav-text: #fff8f2;
-  --text: #1f2928;
+  --text: #171818;
   --text-muted: #596663;
   --border: rgba(31, 41, 40, 0.15);
   --font-display: 'Fraunces', serif;
@@ -30,7 +30,7 @@
   --coral: #f08a72;
   --amber: #f2a18b;
   --plum: #f5d7c9;
-  --nav-bg: #ff0000;
+  --nav-bg: #a52f2f;
   --nav-text: #fff8f2;
   --text: #fff8f2;
   --text-muted: #e8cfc5;

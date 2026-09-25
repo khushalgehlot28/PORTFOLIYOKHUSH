@@ -60,7 +60,7 @@ section { padding: 84px 0; }
 .hero-actions .btn-text { padding-inline: 8px; }
 .social-strip { margin-top: 52px; display: flex; gap: 16px; flex-wrap: wrap; }
 .social-strip a { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: border-color 0.2s ease, transform 0.2s ease; }
-.social-strip a:hover { border-color: var(--coral); transform: translateY(-3px); box-shadow: 0 8px 18px rgba(108, 99, 141, 0.12); }
+.social-strip a:hover { border-color: var(--coral); transform: translateY(-3px); box-shadow: 0 8px 18px rgba(165, 47, 47, 0.14); }
 .hero-scroll { position: absolute; right: 0; bottom: 30px; display: inline-flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.76rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .hero-scroll-line { width: 42px; height: 1px; background: var(--coral); transform-origin: left; animation: scrollLine 2.2s ease-in-out infinite; }
 
