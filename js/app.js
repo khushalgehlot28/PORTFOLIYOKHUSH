@@ -113,7 +113,16 @@ function renderWorkFilters() {
 function renderPosts() {
   const list = document.querySelector('#postList');
   if (!state.posts.length) {
-    addText(list, 'p', 'New notes on development and product work are coming soon.', 'empty-state');
+    const emptyState = addText(list, 'div', '', 'empty-state');
+    addText(emptyState, 'h3', 'Writing is taking shape.');
+    addText(emptyState, 'p', 'I am collecting practical notes on frontend development, interface decisions, and the process behind the work.');
+    const link = document.createElement('a');
+    link.className = 'btn btn-ghost';
+    link.href = '#work';
+    link.dataset.nav = 'work';
+    link.textContent = 'Explore the work ->';
+    emptyState.append(link);
+    link.addEventListener('click', (event) => { event.preventDefault(); showPage('work'); });
     return;
   }
   state.posts.forEach((post) => {
@@ -132,7 +141,16 @@ function renderPosts() {
 function renderTestimonials() {
   const list = document.querySelector('#testiRow');
   if (!state.testimonials.length) {
-    addText(list, 'p', 'Verified feedback will appear here as projects are completed.', 'empty-state');
+    const emptyState = addText(list, 'div', '', 'empty-state');
+    addText(emptyState, 'h3', 'The work comes first.');
+    addText(emptyState, 'p', 'Verified feedback will be added as collaborations become public. Until then, the project details show the decisions, process, and care behind each build.');
+    const link = document.createElement('a');
+    link.className = 'btn btn-primary';
+    link.href = '#contact';
+    link.dataset.nav = 'contact';
+    link.textContent = 'Start a conversation ->';
+    emptyState.append(link);
+    link.addEventListener('click', (event) => { event.preventDefault(); showPage('contact'); });
     return;
   }
   state.testimonials.forEach((testimonial) => {
