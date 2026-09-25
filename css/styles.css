@@ -4,11 +4,13 @@ html { scroll-padding-top: calc(76px + env(safe-area-inset-top, 0px)); scroll-be
 
 body {
   margin: 0;
-  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 58%, var(--bg) 100%);
+  background: linear-gradient(110deg, var(--bg) 0%, var(--bg-2) 54%, var(--bg-deep) 100%);
+  background-size: 120% 100%;
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  animation: backgroundDrift 24s ease-in-out infinite alternate;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
@@ -32,6 +34,7 @@ section { padding: 84px 0; }
 .page.active { display: block; animation: fadeIn 0.55s cubic-bezier(0.2, 0.7, 0.3, 1); }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes backgroundDrift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
 @keyframes riseIn { to { opacity: 1; transform: translateY(0); } }
 @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(121, 185, 155, 0.12); } 50% { box-shadow: 0 0 0 8px rgba(121, 185, 155, 0.02); } }
@@ -39,8 +42,10 @@ section { padding: 84px 0; }
 
 .hero { position: relative; min-height: min(680px, calc(100vh - 76px)); display: flex; align-items: center; padding: 104px 0 100px; overflow: hidden; isolation: isolate; }
 .hero::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.45; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 76px 76px; mask-image: linear-gradient(to bottom, transparent, black 18%, black 75%, transparent); pointer-events: none; }
-.hero-glow { position: absolute; top: -220px; right: -180px; width: 640px; height: 640px; background: radial-gradient(circle at 35% 35%, var(--amber), transparent 68%); filter: blur(6px); opacity: 0.42; pointer-events: none; }
-.hero-glow-2 { position: absolute; bottom: -260px; left: -200px; width: 560px; height: 560px; background: radial-gradient(circle at 50% 50%, var(--coral), transparent 70%); opacity: 0.16; pointer-events: none; }
+.hero-glow { position: absolute; top: -220px; right: -180px; width: 640px; height: 640px; background: radial-gradient(circle at 35% 35%, var(--amber), transparent 68%); filter: blur(6px); opacity: 0.42; pointer-events: none; animation: glowDrift 12s ease-in-out infinite alternate; }
+.hero-glow-2 { position: absolute; bottom: -260px; left: -200px; width: 560px; height: 560px; background: radial-gradient(circle at 50% 50%, var(--coral), transparent 70%); opacity: 0.16; pointer-events: none; animation: glowDrift 16s ease-in-out infinite alternate-reverse; }
+.hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, transparent 0%, transparent 58%, color-mix(in srgb, var(--coral) 3%, transparent) 100%); pointer-events: none; }
+@keyframes glowDrift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-28px, 20px, 0) scale(1.08); } }
 .hero-inner { position: relative; z-index: 1; max-width: 1080px; }
 .hero h1 { display: flex; flex-wrap: wrap; gap: 0 0.2em; max-width: 900px; font-size: clamp(2.8rem, 8.4vw, 5.8rem); font-weight: 700; }
 .hero h1 .word { display: inline-flex; }
@@ -108,6 +113,7 @@ footer { border-top: 1px solid var(--border); padding: 38px 0; margin-top: 38px;
 
 @media (prefers-reduced-motion: reduce) {
   .page { animation: none; }
+  body, .hero-glow, .hero-glow-2 { animation: none; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
