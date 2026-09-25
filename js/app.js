@@ -2,7 +2,7 @@ const config = {
   name: 'Khushal Gehlot',
   email: '',
   location: 'India / working worldwide',
-  formspreeEndpoint: '',
+  formspreeEndpoint: 'https://formspree.io/f/mkjgzygj',
   socialLinks: { github: '', linkedin: '', instagram: '', youtube: '', x: '' }
 };
 
