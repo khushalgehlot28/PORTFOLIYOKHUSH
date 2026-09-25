@@ -67,6 +67,8 @@ section { padding: 84px 0; }
 
 .section-heading { font-size: clamp(1.7rem, 4vw, 2.5rem); max-width: 600px; font-weight: 600; }
 .section-heading-small { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+.is-loading { min-height: 210px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 70%, transparent), color-mix(in srgb, var(--surface-2) 70%, transparent), color-mix(in srgb, var(--surface) 70%, transparent)); background-size: 220% 100%; animation: loadingShimmer 1.4s ease-in-out infinite; border-radius: var(--r-m); }
+@keyframes loadingShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 .home-work { padding-top: 84px; }
 .about-copy { max-width: none; margin-top: 18px; }
 .about-copy-last { margin-top: 14px; }
@@ -99,6 +101,10 @@ code { font: 0.9em var(--font-body); color: var(--coral); }
 footer { border-top: 1px solid var(--border); padding: 38px 0; margin-top: 38px; }
 .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; color: var(--text-muted); font-size: 0.84rem; }
 :focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .is-loading { animation: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .page { animation: none; }

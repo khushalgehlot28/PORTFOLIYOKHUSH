@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Khushal Gehlot - Frontend Developer</title>
+  <desc id="desc">A social preview card for Khushal Gehlot's developer portfolio.</desc>
+  <rect width="1200" height="630" fill="#f7f1e8"/>
+  <circle cx="1030" cy="80" r="260" fill="#e5ae52" opacity=".58"/>
+  <circle cx="1130" cy="560" r="300" fill="#b84f3f" opacity=".22"/>
+  <path d="M0 480C230 390 330 590 560 500S870 380 1200 470V630H0Z" fill="#294a4a"/>
+  <text x="82" y="210" fill="#294a4a" font-family="Georgia, serif" font-size="92" font-weight="700">Khushal</text>
+  <text x="82" y="310" fill="#b84f3f" font-family="Georgia, serif" font-size="92" font-weight="700">Gehlot</text>
+  <text x="88" y="385" fill="#596663" font-family="Arial, sans-serif" font-size="27" letter-spacing="3">FRONTEND DEVELOPER</text>
+  <text x="88" y="555" fill="#f7f1e8" font-family="Arial, sans-serif" font-size="24">Responsive interfaces / useful digital products</text>
+</svg>
