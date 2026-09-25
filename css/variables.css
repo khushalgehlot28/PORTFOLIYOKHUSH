@@ -6,6 +6,8 @@
   --coral: #b84f3f;
   --amber: #d96b55;
   --plum: #6f2f2f;
+  --nav-bg: #5a2424;
+  --nav-text: #fff8f2;
   --text: #1f2928;
   --text-muted: #596663;
   --border: rgba(31, 41, 40, 0.15);
@@ -26,6 +28,8 @@
   --coral: #f08a72;
   --amber: #f2a18b;
   --plum: #f5d7c9;
+  --nav-bg: #351616;
+  --nav-text: #fff8f2;
   --text: #fff8f2;
   --text-muted: #e8cfc5;
   --border: rgba(255, 248, 242, 0.18);
