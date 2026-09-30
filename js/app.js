@@ -55,12 +55,14 @@ function renderHeroTitle() {
 
 function renderMarquee() {
   const track = document.querySelector('#marqueeTrack');
+  if (!track) return;
   state.skills.concat(state.skills).forEach((skill, index) => {
     addText(track, 'span', skill, index % state.skills.length % 2 === 0 ? 'pop' : '');
   });
 }
 
 function renderTiles(container, projects) {
+  if (!container) return;
   projects.forEach((project, index) => {
     const tile = document.createElement('article');
     tile.className = `tile ${project.className}`;
@@ -85,6 +87,7 @@ function renderTiles(container, projects) {
 
 function renderWorkFilters() {
   const filterBar = document.querySelector('#workFilters');
+  if (!filterBar) return;
   const categories = ['All', ...new Set(state.projects.map((project) => project.category))];
   categories.forEach((category, index) => {
     const button = document.createElement('button');
@@ -112,6 +115,7 @@ function renderWorkFilters() {
 
 function renderPosts() {
   const list = document.querySelector('#postList');
+  if (!list) return;
   if (!state.posts.length) {
     const emptyState = addText(list, 'div', '', 'empty-state');
     addText(emptyState, 'h3', 'Writing is taking shape.');
@@ -155,6 +159,7 @@ function renderPosts() {
 
 function renderTestimonials() {
   const list = document.querySelector('#testiRow');
+  if (!list) return;
   if (!state.testimonials.length) {
     const emptyState = addText(list, 'div', '', 'empty-state');
     addText(emptyState, 'h3', 'The work comes first.');
@@ -209,6 +214,7 @@ function renderSocials() {
 
 function renderContact() {
   const card = document.querySelector('#contactEmailCard');
+  if (!card) return;
   if (!config.email) { card.hidden = true; return; }
   addText(card, 'p', 'Prefer email?');
   const title = addText(card, 'h3', '');
@@ -233,13 +239,14 @@ function closeCaseStudy() {
   const dialog = document.querySelector('#caseStudy');
   const trigger = dialogTrigger;
   dialogTrigger = null;
-  if (dialog.open) dialog.close();
+  if (dialog && dialog.open) dialog.close();
   setTimeout(() => trigger?.focus(), 0);
 }
 
 function openCaseStudy(project, trigger) {
   const dialog = document.querySelector('#caseStudy');
   const content = document.querySelector('#caseStudyContent');
+  if (!dialog || !content) return;
   dialogTrigger = trigger;
   content.replaceChildren();
   const wrapper = document.createElement('div');
@@ -249,7 +256,7 @@ function openCaseStudy(project, trigger) {
   if (project.image) {
     const image = document.createElement('img');
     image.className = 'case-study-image';
-    image.src = project.image;
+    image.src = post.image;
     image.alt = project.imageAlt;
     image.width = project.imageWidth;
     image.height = project.imageHeight;
@@ -277,10 +284,11 @@ function openCaseStudy(project, trigger) {
   wrapper.append(actions);
   content.append(wrapper);
   dialog.showModal();
-  dialog.querySelector('.case-close').focus();
+  dialog.querySelector('.case-close')?.focus();
 }
 
 function setMenu(open) {
+  if (!nav || !menuButton) return;
   nav.classList.toggle('open', open);
   document.body.classList.toggle('menu-open', open);
   menuButton.setAttribute('aria-expanded', String(open));
@@ -303,15 +311,18 @@ function showPage(route, updateHash = true) {
   setMenu(false);
   if (updateHash && history.replaceState) history.replaceState(null, '', `#${nextRoute}`);
   window.scrollTo({ top: 0, behavior: 'auto' });
-  document.querySelector(`#page-${nextRoute}`).focus({ preventScroll: true });
+  const targetPage = document.querySelector(`#page-${nextRoute}`);
+  targetPage?.focus({ preventScroll: true });
 }
 
 function setTheme(theme) {
   const dark = theme === 'dark';
   if (dark) root.setAttribute('data-theme', 'dark');
   else root.removeAttribute('data-theme');
-  themeButton.setAttribute('aria-pressed', String(dark));
-  themeButton.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  if (themeButton) {
+    themeButton.setAttribute('aria-pressed', String(dark));
+    themeButton.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  }
 }
 
 function initTheme() {
@@ -320,7 +331,7 @@ function initTheme() {
     savedTheme = localStorage.getItem('kg-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   } catch (error) { savedTheme = 'light'; }
   setTheme(savedTheme);
-  themeButton.addEventListener('click', () => {
+  themeButton?.addEventListener('click', () => {
     const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     try { localStorage.setItem('kg-theme', nextTheme); } catch (error) { /* Keep the toggle usable without storage. */ }
@@ -333,13 +344,13 @@ function initNavigation() {
     event.preventDefault();
     showPage(link.dataset.nav);
   }));
-  document.querySelector('.brand').addEventListener('click', (event) => {
+  document.querySelector('.brand')?.addEventListener('click', (event) => {
     event.preventDefault();
     showPage('home');
   });
-  menuButton.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
+  menuButton?.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
   document.addEventListener('click', (event) => {
-    if (nav.classList.contains('open') && !nav.contains(event.target) && !menuButton.contains(event.target)) setMenu(false);
+    if (nav?.classList.contains('open') && !nav.contains(event.target) && !menuButton.contains(event.target)) setMenu(false);
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -371,8 +382,10 @@ function initForm() {
   const status = document.querySelector('#contactStatus');
   const errors = document.querySelector('#formErrors');
 
+  if (!form) return;
+
   function clearFormErrors() {
-    errors.replaceChildren();
+    if (errors) errors.replaceChildren();
     form.querySelectorAll('[aria-invalid="true"]').forEach((field) => field.removeAttribute('aria-invalid'));
     form.querySelectorAll('.field-error').forEach((message) => message.remove());
   }
@@ -391,37 +404,85 @@ function initForm() {
       }
     });
     const generalMessages = messages.filter(({ field }) => !field).map(({ message }) => message);
-    if (generalMessages.length) addText(errors, 'p', generalMessages.join(' '));
-    status.textContent = 'Please review the highlighted fields and try again.';
+    if (generalMessages.length && errors) addText(errors, 'p', generalMessages.join(' '));
+    if (status) status.textContent = 'Please review the highlighted fields and try again.';
   }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!form.checkValidity()) { form.reportValidity(); return; }
-    if (form.elements.website.value) return;
-    clearFormErrors();
-    const button = form.querySelector('button[type="submit"]');
-    button.disabled = true;
-    button.textContent = 'Sending...';
-    if (!config.formspreeEndpoint) {
-      status.textContent = 'The contact form is temporarily unavailable. Please try again later.';
-      button.disabled = false;
-      button.textContent = 'Send message';
+
+    // Check html5 browser validation
+    if (!form.checkValidity()) { 
+      form.reportValidity(); 
+      return; 
+    }
+
+    // Check honeypot spam filter
+    if (form.elements.website && form.elements.website.value) {
+      console.warn('Submission cancelled by honeypot spam filter.');
       return;
     }
+
+    clearFormErrors();
+    const button = form.querySelector('button[type="submit"]');
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Sending...';
+    }
+
+    if (!config.formspreeEndpoint) {
+      if (status) status.textContent = 'The contact form is temporarily unavailable. Please try again later.';
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Send message';
+      }
+      return;
+    }
+
+    // Extract raw form entries and map them safely to plain JSON payload
+    const rawFormData = new FormData(form);
+    const payload = {
+      name: rawFormData.get('name') || '',
+      email: rawFormData.get('email') || '',
+      subject: rawFormData.get('subject') || '',
+      projectType: rawFormData.get('projectType') || '',
+      timeline: rawFormData.get('timeline') || 'Not sure yet',
+      message: rawFormData.get('message') || ''
+    };
+
+    console.log('Sending JSON payload to Render endpoint:', payload);
+
     try {
-      const response = await fetch(config.formspreeEndpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+      const response = await fetch(config.formspreeEndpoint, { 
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json' 
+        }, 
+        body: JSON.stringify(payload) 
+      });
+
+      console.log('Backend response status code:', response.status);
       const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
+        console.error('Backend submission error:', result);
         showFormErrors(result.errors || [{ message: result.error || 'The message could not be sent.' }]);
         return;
       }
-      status.textContent = 'Thanks! Your message has been sent successfully.';
+
+      if (status) status.textContent = 'Thanks! Your message has been saved successfully.';
       form.reset();
       clearFormErrors();
     } catch (error) {
-      status.textContent = 'Something went wrong. Please try again or use email.';
-    } finally { button.disabled = false; button.textContent = 'Send message'; }
+      console.error('Fetch error:', error);
+      if (status) status.textContent = 'Something went wrong. Please try again or use email.';
+    } finally { 
+      if (button) {
+        button.disabled = false; 
+        button.textContent = 'Send message'; 
+      }
+    }
   });
 }
 
@@ -435,29 +496,31 @@ function initRevealObserver(scope = document) {
 
 function initEnhancements() {
   const dialog = document.querySelector('#caseStudy');
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && dialog.open) {
-      event.preventDefault();
-      closeCaseStudy();
-    }
-  }, true);
-  dialog.querySelector('.case-close').addEventListener('click', closeCaseStudy);
-  dialog.addEventListener('close', () => {
-    dialogTrigger = null;
-  });
-  dialog.addEventListener('click', (event) => { if (event.target === event.currentTarget) closeCaseStudy(); });
-  dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeCaseStudy(); });
-  dialog.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') { event.preventDefault(); closeCaseStudy(); return; }
-    if (event.key !== 'Tab') return;
-    const focusable = [...dialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter((element) => !element.disabled);
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-  });
-  document.querySelector('.back-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  if (dialog) {
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && dialog.open) {
+        event.preventDefault();
+        closeCaseStudy();
+      }
+    }, true);
+    dialog.querySelector('.case-close')?.addEventListener('click', closeCaseStudy);
+    dialog.addEventListener('close', () => {
+      dialogTrigger = null;
+    });
+    dialog.addEventListener('click', (event) => { if (event.target === event.currentTarget) closeCaseStudy(); });
+    dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeCaseStudy(); });
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') { event.preventDefault(); closeCaseStudy(); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = [...dialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter((element) => !element.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+  }
+  document.querySelector('.back-top')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   initRevealObserver();
 }
 
