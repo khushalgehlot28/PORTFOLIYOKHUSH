@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | Khushal Gehlot</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
   <style>
     :root {
       --bg: #0f1115;
@@ -12,12 +13,14 @@
       --text: #e6e8ee;
       --text-muted: #9aa0b0;
       --accent: #3b82f6;
+      --accent-hover: #2563eb;
       --danger: #ef4444;
       --success: #10b981;
+      --warning: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 2rem; min-height: 100vh; }
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 1200px; margin: 0 auto; }
     
     /* Login Box */
     .login-wrapper { max-width: 400px; margin: 80px auto; background: var(--card-bg); border: 1px solid var(--border); padding: 2rem; border-radius: 8px; }
@@ -25,30 +28,62 @@
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
     .form-group input { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 1rem; }
-    .btn { width: 100%; padding: 0.75rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-    .btn:hover { opacity: 0.9; }
-    .btn-danger { background: var(--danger); }
-    .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; width: auto; }
     
-    /* Dashboard Header */
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-    .header-actions { display: flex; gap: 1rem; align-items: center; }
+    .btn { padding: 0.6rem 1.2rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-secondary:hover { background: #373c4a; }
+    .btn-small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+    .btn-full { width: 100%; }
+
+    /* Dashboard Header & Stats Bar */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; }
+    .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 1.2rem; border-radius: 8px; }
+    .stat-card .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
+    .stat-card.unread .value { color: var(--accent); }
+    .stat-card.replied .value { color: var(--success); }
+
+    /* Controls & Toolbar */
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .search-filter { display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1; }
+    .search-input { padding: 0.6rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.9rem; min-width: 240px; flex: 1; }
+    .filter-select { padding: 0.6rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.9rem; cursor: pointer; }
+    .bulk-actions { display: flex; gap: 0.5rem; }
 
     /* Submissions Table */
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
     th { background: #13151a; color: var(--text-muted); font-weight: 600; }
-    tr:hover { background: #1f232b; }
-    
-    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    tr:hover { background: #1f232b; cursor: pointer; }
+    tr.unread-row { font-weight: 600; background: rgba(59, 130, 246, 0.05); }
+
+    .badge { padding: 0.25rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
     .badge-unread { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
     .badge-read { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
     .badge-replied { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+    .msg-preview { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
+    .actions-cell { display: flex; gap: 0.4rem; }
+
+    /* Modal Overlay */
+    .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; padding: 1rem; z-index: 100; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+    .modal-close:hover { color: var(--text); }
     
-    .msg-body { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
-    .actions-cell { display: flex; gap: 0.5rem; }
-    
+    .detail-group { margin-bottom: 1.2rem; }
+    .detail-group label { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; }
+    .detail-group p { font-size: 1rem; line-height: 1.5; color: var(--text); background: var(--bg); padding: 0.8rem; border-radius: 4px; border: 1px solid var(--border); white-space: pre-wrap; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
     .hidden { display: none !important; }
     .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
   </style>
@@ -68,7 +103,7 @@
           <label>Password</label>
           <input type="password" id="adminPass" required autocomplete="current-password">
         </div>
-        <button type="submit" class="btn">Login</button>
+        <button type="submit" class="btn btn-full">Login</button>
         <p id="loginError" class="error-msg hidden"></p>
       </form>
     </div>
@@ -77,19 +112,54 @@
     <div id="dashboardView" class="hidden">
       <div class="header">
         <div>
-          <h2>Client Messages</h2>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Manage incoming portfolio contacts</p>
+          <h2>Owner Dashboard</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Manage client submissions and lead interactions</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-small" id="refreshBtn">Refresh</button>
-          <button class="btn btn-small btn-danger" id="logoutBtn">Logout</button>
+          <button class="btn btn-secondary btn-small" id="refreshBtn">🔄 Refresh</button>
+          <button class="btn btn-danger btn-small" id="logoutBtn">Logout</button>
         </div>
       </div>
 
+      <!-- Quick Stats Bar -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Total Messages</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card unread">
+          <div class="label">Unread Leads</div>
+          <div class="value" id="statUnread">0</div>
+        </div>
+        <div class="stat-card replied">
+          <div class="label">Replied</div>
+          <div class="value" id="statReplied">0</div>
+        </div>
+      </div>
+
+      <!-- Controls & Toolbar -->
+      <div class="toolbar">
+        <div class="search-filter">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by name, email, subject, or message...">
+          <select id="filterSelect" class="filter-select">
+            <option value="all">All Statuses</option>
+            <option value="unread">Unread</option>
+            <option value="read">Read</option>
+            <option value="replied">Replied</option>
+          </select>
+        </div>
+        <div class="bulk-actions">
+          <button class="btn btn-secondary btn-small" id="bulkMarkReadBtn">Mark Selected Read</button>
+          <button class="btn btn-danger btn-small" id="bulkDeleteBtn">Delete Selected</button>
+        </div>
+      </div>
+
+      <!-- Submissions Table -->
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
+              <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox"></th>
               <th>Date</th>
               <th>Name</th>
               <th>Email</th>
@@ -100,9 +170,54 @@
             </tr>
           </thead>
           <tbody id="submissionsTable">
-            <!-- Rows dynamically inserted here -->
+            <!-- Dynamically populated -->
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Detail Modal -->
+  <div id="detailModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalSubject">Subject Line</h3>
+          <span id="modalStatusBadge" class="badge">unread</span>
+        </div>
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-group">
+          <label>Client Name</label>
+          <p id="modalName">-</p>
+        </div>
+        <div class="detail-group">
+          <label>Email Address</label>
+          <p id="modalEmail">-</p>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-group">
+          <label>Help Type</label>
+          <p id="modalType">-</p>
+        </div>
+        <div class="detail-group">
+          <label>Timeline</label>
+          <p id="modalTimeline">-</p>
+        </div>
+      </div>
+
+      <div class="detail-group">
+        <label>Message Content</label>
+        <p id="modalMessage">-</p>
+      </div>
+
+      <div class="header-actions" style="margin-top: 1.5rem; justify-content: flex-end;">
+        <a id="modalReplyBtn" class="btn" target="_blank" href="#">✉️ Reply via Email</a>
+        <button class="btn btn-secondary" id="modalToggleStatusBtn">Toggle Status</button>
       </div>
     </div>
   </div>
@@ -110,12 +225,31 @@
   <script>
     const API_BASE = window.location.origin;
     let authToken = localStorage.getItem('kg_admin_token');
+    let allSubmissions = [];
+    let activeSubmission = null;
 
+    // DOM Elements
     const loginView = document.getElementById('loginView');
     const dashboardView = document.getElementById('dashboardView');
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
     const submissionsTable = document.getElementById('submissionsTable');
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+    // Modal DOM Elements
+    const detailModal = document.getElementById('detailModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalSubject = document.getElementById('modalSubject');
+    const modalStatusBadge = document.getElementById('modalStatusBadge');
+    const modalName = document.getElementById('modalName');
+    const modalEmail = document.getElementById('modalEmail');
+    const modalType = document.getElementById('modalType');
+    const modalTimeline = document.getElementById('modalTimeline');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalReplyBtn = document.getElementById('modalReplyBtn');
+    const modalToggleStatusBtn = document.getElementById('modalToggleStatusBtn');
 
     function checkAuth() {
       if (authToken) {
@@ -176,46 +310,112 @@
         }
 
         const data = await res.json();
-        renderTable(data.submissions || []);
+        allSubmissions = data.submissions || [];
+        updateStats();
+        applyFilterAndSearch();
       } catch (err) {
         console.error('Error loading submissions:', err);
       }
     }
 
+    function updateStats() {
+      document.getElementById('statTotal').textContent = allSubmissions.length;
+      document.getElementById('statUnread').textContent = allSubmissions.filter(s => s.status === 'unread').length;
+      document.getElementById('statReplied').textContent = allSubmissions.filter(s => s.status === 'replied').length;
+    }
+
+    function applyFilterAndSearch() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filterStatus = filterSelect.value;
+
+      const filtered = allSubmissions.filter(item => {
+        const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
+        const matchesSearch = 
+          item.fullName.toLowerCase().includes(searchTerm) ||
+          item.email.toLowerCase().includes(searchTerm) ||
+          item.subject.toLowerCase().includes(searchTerm) ||
+          item.message.toLowerCase().includes(searchTerm);
+
+        return matchesStatus && matchesSearch;
+      });
+
+      renderTable(filtered);
+    }
+
+    searchInput.addEventListener('input', applyFilterAndSearch);
+    filterSelect.addEventListener('change', applyFilterAndSearch);
+
     function renderTable(submissions) {
       submissionsTable.innerHTML = '';
+      selectAllCheckbox.checked = false;
 
       if (submissions.length === 0) {
-        submissionsTable.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No messages found.</td></tr>`;
+        submissionsTable.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding: 2rem;">No submissions found.</td></tr>`;
         return;
       }
 
       submissions.forEach(item => {
         const tr = document.createElement('tr');
+        if (item.status === 'unread') tr.classList.add('unread-row');
+
         const dateStr = new Date(item.createdAt).toLocaleDateString();
 
         tr.innerHTML = `
+          <td onclick="event.stopPropagation()"><input type="checkbox" class="row-checkbox" data-id="${item._id}"></td>
           <td>${dateStr}</td>
           <td><strong>${escapeHtml(item.fullName)}</strong></td>
-          <td><a href="mailto:${escapeHtml(item.email)}?subject=Re: ${encodeURIComponent(item.subject)}" style="color:var(--accent);">${escapeHtml(item.email)}</a></td>
+          <td><a href="mailto:${escapeHtml(item.email)}" onclick="event.stopPropagation()" style="color:var(--accent);">${escapeHtml(item.email)}</a></td>
           <td>${escapeHtml(item.projectType)}<br><small style="color:var(--text-muted);">${escapeHtml(item.timeline)}</small></td>
-          <td class="msg-body" title="${escapeHtml(item.message)}">${escapeHtml(item.message)}</td>
+          <td class="msg-preview">${escapeHtml(item.message)}</td>
           <td><span class="badge badge-${item.status}">${item.status}</span></td>
-          <td>
+          <td onclick="event.stopPropagation()">
             <div class="actions-cell">
-              <button class="btn btn-small" onclick="toggleStatus('${item._id}', '${item.status}')">Status</button>
+              <button class="btn btn-small btn-secondary" onclick="toggleStatus('${item._id}', '${item.status}')">Status</button>
               <button class="btn btn-small btn-danger" onclick="deleteSubmission('${item._id}')">Delete</button>
             </div>
           </td>
         `;
+
+        tr.addEventListener('click', () => openModal(item));
         submissionsTable.appendChild(tr);
       });
     }
 
-    async function toggleStatus(id, currentStatus) {
+    // Modal Control Functions
+    function openModal(item) {
+      activeSubmission = item;
+      modalSubject.textContent = item.subject;
+      modalName.textContent = item.fullName;
+      modalEmail.textContent = item.email;
+      modalType.textContent = item.projectType;
+      modalTimeline.textContent = item.timeline;
+      modalMessage.textContent = item.message;
+
+      modalStatusBadge.textContent = item.status;
+      modalStatusBadge.className = `badge badge-${item.status}`;
+
+      modalReplyBtn.href = `mailto:${encodeURIComponent(item.email)}?subject=Re: ${encodeURIComponent(item.subject)}`;
+
+      detailModal.classList.remove('hidden');
+
+      // Auto mark as read if opened while unread
+      if (item.status === 'unread') {
+        toggleStatus(item._id, 'unread', false);
+      }
+    }
+
+    closeModalBtn.addEventListener('click', () => detailModal.classList.add('hidden'));
+    detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.add('hidden'); });
+
+    modalToggleStatusBtn.addEventListener('click', () => {
+      if (!activeSubmission) return;
+      toggleStatus(activeSubmission._id, activeSubmission.status, true);
+    });
+
+    async function toggleStatus(id, currentStatus, refreshModal = true) {
       const nextStatus = currentStatus === 'unread' ? 'read' : currentStatus === 'read' ? 'replied' : 'unread';
       try {
-        await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
+        const res = await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
           method: 'PATCH',
           headers: { 
             'Content-Type': 'application/json',
@@ -223,6 +423,14 @@
           },
           body: JSON.stringify({ status: nextStatus })
         });
+        const data = await res.json();
+
+        if (refreshModal && activeSubmission && activeSubmission._id === id) {
+          activeSubmission = data.submission;
+          modalStatusBadge.textContent = activeSubmission.status;
+          modalStatusBadge.className = `badge badge-${activeSubmission.status}`;
+        }
+
         loadSubmissions();
       } catch (err) {
         console.error('Failed to update status:', err);
@@ -236,17 +444,50 @@
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
+        detailModal.classList.add('hidden');
         loadSubmissions();
       } catch (err) {
         console.error('Failed to delete submission:', err);
       }
     }
 
+    // Bulk Actions
+    selectAllCheckbox.addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = e.target.checked);
+    });
+
+    document.getElementById('bulkMarkReadBtn').addEventListener('click', async () => {
+      const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.dataset.id);
+      if (!selectedIds.length) return alert('No messages selected.');
+
+      for (const id of selectedIds) {
+        await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          body: JSON.stringify({ status: 'read' })
+        });
+      }
+      loadSubmissions();
+    });
+
+    document.getElementById('bulkDeleteBtn').addEventListener('click', async () => {
+      const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.dataset.id);
+      if (!selectedIds.length) return alert('No messages selected.');
+      if (!confirm(`Delete ${selectedIds.length} selected message(s)?`)) return;
+
+      for (const id of selectedIds) {
+        await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+      }
+      loadSubmissions();
+    });
+
     function escapeHtml(str) {
       return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // Initialize check
     checkAuth();
   </script>
 </body>
