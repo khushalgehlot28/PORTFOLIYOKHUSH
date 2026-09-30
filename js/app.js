@@ -1,8 +1,9 @@
 const config = {
   name: 'Khushal Gehlot',
-  email: '',
+  email: 'khushalgehlot28@gmail.com',
   location: 'India / working worldwide',
-  formspreeEndpoint: 'https://formspree.io/f/mkjgzygj',
+  // Live Render backend endpoint:
+  formspreeEndpoint: 'https://portfoliyokhush.onrender.com/api/submit',
   socialLinks: { github: '', linkedin: '', instagram: '', youtube: '', x: '' }
 };
 
