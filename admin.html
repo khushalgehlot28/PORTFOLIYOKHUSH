@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Khushal Gehlot</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card-bg: #181b21;
+      --border: #2a2e39;
+      --text: #e6e8ee;
+      --text-muted: #9aa0b0;
+      --accent: #3b82f6;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 2rem; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    /* Login Box */
+    .login-wrapper { max-width: 400px; margin: 80px auto; background: var(--card-bg); border: 1px solid var(--border); padding: 2rem; border-radius: 8px; }
+    .login-wrapper h2 { margin-bottom: 1.5rem; text-align: center; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+    .form-group input { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 1rem; }
+    .btn { width: 100%; padding: 0.75rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn-danger { background: var(--danger); }
+    .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; width: auto; }
+    
+    /* Dashboard Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .header-actions { display: flex; gap: 1rem; align-items: center; }
+
+    /* Submissions Table */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: #13151a; color: var(--text-muted); font-weight: 600; }
+    tr:hover { background: #1f232b; }
+    
+    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge-unread { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-read { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+    .badge-replied { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    
+    .msg-body { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
+    .actions-cell { display: flex; gap: 0.5rem; }
+    
+    .hidden { display: none !important; }
+    .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Login View -->
+    <div id="loginView" class="login-wrapper">
+      <h2>Admin Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="adminUser" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="adminPass" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <p id="loginError" class="error-msg hidden"></p>
+      </form>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden">
+      <div class="header">
+        <div>
+          <h2>Client Messages</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Manage incoming portfolio contacts</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-small" id="refreshBtn">Refresh</button>
+          <button class="btn btn-small btn-danger" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Type / Timeline</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="submissionsTable">
+            <!-- Rows dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let authToken = localStorage.getItem('kg_admin_token');
+
+    const loginView = document.getElementById('loginView');
+    const dashboardView = document.getElementById('dashboardView');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const submissionsTable = document.getElementById('submissionsTable');
+
+    function checkAuth() {
+      if (authToken) {
+        loginView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        loadSubmissions();
+      } else {
+        loginView.classList.remove('hidden');
+        dashboardView.classList.add('hidden');
+      }
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.classList.add('hidden');
+
+      const username = document.getElementById('adminUser').value;
+      const password = document.getElementById('adminPass').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+
+        authToken = data.token;
+        localStorage.setItem('kg_admin_token', authToken);
+        checkAuth();
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('kg_admin_token');
+      authToken = null;
+      checkAuth();
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', loadSubmissions);
+
+    async function loadSubmissions() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/submissions`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('kg_admin_token');
+          authToken = null;
+          checkAuth();
+          return;
+        }
+
+        const data = await res.json();
+        renderTable(data.submissions || []);
+      } catch (err) {
+        console.error('Error loading submissions:', err);
+      }
+    }
+
+    function renderTable(submissions) {
+      submissionsTable.innerHTML = '';
+
+      if (submissions.length === 0) {
+        submissionsTable.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No messages found.</td></tr>`;
+        return;
+      }
+
+      submissions.forEach(item => {
+        const tr = document.createElement('tr');
+        const dateStr = new Date(item.createdAt).toLocaleDateString();
+
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td><strong>${escapeHtml(item.fullName)}</strong></td>
+          <td><a href="mailto:${escapeHtml(item.email)}?subject=Re: ${encodeURIComponent(item.subject)}" style="color:var(--accent);">${escapeHtml(item.email)}</a></td>
+          <td>${escapeHtml(item.projectType)}<br><small style="color:var(--text-muted);">${escapeHtml(item.timeline)}</small></td>
+          <td class="msg-body" title="${escapeHtml(item.message)}">${escapeHtml(item.message)}</td>
+          <td><span class="badge badge-${item.status}">${item.status}</span></td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-small" onclick="toggleStatus('${item._id}', '${item.status}')">Status</button>
+              <button class="btn btn-small btn-danger" onclick="deleteSubmission('${item._id}')">Delete</button>
+            </div>
+          </td>
+        `;
+        submissionsTable.appendChild(tr);
+      });
+    }
+
+    async function toggleStatus(id, currentStatus) {
+      const nextStatus = currentStatus === 'unread' ? 'read' : currentStatus === 'read' ? 'replied' : 'unread';
+      try {
+        await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}` 
+          },
+          body: JSON.stringify({ status: nextStatus })
+        });
+        loadSubmissions();
+      } catch (err) {
+        console.error('Failed to update status:', err);
+      }
+    }
+
+    async function deleteSubmission(id) {
+      if (!confirm('Are you sure you want to delete this message?')) return;
+      try {
+        await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        loadSubmissions();
+      } catch (err) {
+        console.error('Failed to delete submission:', err);
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Initialize check
+    checkAuth();
+  </script>
+</body>
+</html>
