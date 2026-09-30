@@ -22,27 +22,45 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('Successfully connected to MongoDB Atlas Cloud!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Schema & Model
+// Updated Schema to include all form fields
 const submissionSchema = new mongoose.Schema({
-  fullName: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
-  message: { type: String, required: true, trim: true }
+  fullName:    { type: String, required: true, trim: true },
+  email:       { type: String, required: true, trim: true, lowercase: true },
+  subject:     { type: String, required: true, trim: true },
+  projectType: { type: String, required: true, trim: true },
+  timeline:    { type: String, default: 'Not specified', trim: true },
+  message:     { type: String, required: true, trim: true }
 }, { timestamps: true });
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
-// API Route
+// Updated API Route
 app.post('/api/submit', async (req, res) => {
   try {
     const fullName = req.body.name || req.body.fullName;
     const email = req.body.email;
+    const subject = req.body.subject;
+    const projectType = req.body.projectType;
+    const timeline = req.body.timeline;
     const message = req.body.message;
 
-    if (!fullName || !email || !message) {
-      return res.status(400).json({ success: false, error: 'All fields are required.' });
+    // Validate required fields
+    if (!fullName || !email || !subject || !projectType || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Please fill in all required fields (Name, Email, Subject, Help Type, Message).' 
+      });
     }
 
-    const newSubmission = new Submission({ fullName, email, message });
+    const newSubmission = new Submission({ 
+      fullName, 
+      email, 
+      subject, 
+      projectType, 
+      timeline, 
+      message 
+    });
+
     const savedData = await newSubmission.save();
 
     return res.status(201).json({
