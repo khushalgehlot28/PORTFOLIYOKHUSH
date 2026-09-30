@@ -23,7 +23,7 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('Successfully connected to MongoDB Atlas Cloud!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Updated Submission Schema with Tags and Notes
+// Schema for Contact Submissions
 const submissionSchema = new mongoose.Schema({
   fullName:    { type: String, required: true, trim: true },
   email:       { type: String, required: true, trim: true, lowercase: true },
@@ -32,28 +32,13 @@ const submissionSchema = new mongoose.Schema({
   timeline:    { type: String, default: 'Not specified', trim: true },
   message:     { type: String, required: true, trim: true },
   status:      { type: String, enum: ['unread', 'read', 'replied'], default: 'unread' },
-  tag:         { type: String, default: 'General', trim: true }, // New: High Priority, Follow Up, Quoted, Closed
-  internalNote:{ type: String, default: '', trim: true }        // New: Private notes for site owner
+  tag:         { type: String, default: 'General', trim: true },
+  internalNote:{ type: String, default: '', trim: true }
 }, { timestamps: true });
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
-// UPDATE Submission Notes/Tag (Protected)
-app.patch('/api/admin/submissions/:id/details', authenticateAdmin, async (req, res) => {
-  try {
-    const { tag, internalNote } = req.body;
-    const updated = await Submission.findByIdAndUpdate(
-      req.params.id, 
-      { tag, internalNote }, 
-      { new: true }
-    );
-    return res.json({ success: true, submission: updated });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: 'Failed to update details.' });
-  }
-});
-
-// JWT Auth Middleware to protect admin routes
+// JWT Auth Middleware (MUST BE DECLARED BEFORE PROTECTED ROUTES)
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -134,6 +119,21 @@ app.patch('/api/admin/submissions/:id', authenticateAdmin, async (req, res) => {
     return res.json({ success: true, submission: updated });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Failed to update status.' });
+  }
+});
+
+// Update Submission Tag & Internal Notes (Protected)
+app.patch('/api/admin/submissions/:id/details', authenticateAdmin, async (req, res) => {
+  try {
+    const { tag, internalNote } = req.body;
+    const updated = await Submission.findByIdAndUpdate(
+      req.params.id, 
+      { tag, internalNote }, 
+      { new: true }
+    );
+    return res.json({ success: true, submission: updated });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to update details.' });
   }
 });
 
