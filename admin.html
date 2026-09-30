@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Khushal Gehlot</title>
+  <title>Executive Admin Dashboard | Khushal Gehlot</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <!-- Chart.js CDN for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #0f1115;
@@ -17,22 +19,23 @@
       --danger: #ef4444;
       --success: #10b981;
       --warning: #f59e0b;
+      --purple: #8b5cf6;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 2rem; min-height: 100vh; }
-    .container { max-width: 1200px; margin: 0 auto; }
+    .container { max-width: 1250px; margin: 0 auto; }
     
     /* Login Box */
     .login-wrapper { max-width: 400px; margin: 80px auto; background: var(--card-bg); border: 1px solid var(--border); padding: 2rem; border-radius: 8px; }
     .login-wrapper h2 { margin-bottom: 1.5rem; text-align: center; }
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
-    .form-group input { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 1rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.95rem; }
     
     .btn { padding: 0.6rem 1.2rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; }
     .btn:hover { background: var(--accent-hover); }
     .btn-danger { background: var(--danger); }
-    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: var(--success); }
     .btn-secondary { background: var(--border); color: var(--text); }
     .btn-secondary:hover { background: #373c4a; }
     .btn-small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
@@ -49,12 +52,17 @@
     .stat-card.unread .value { color: var(--accent); }
     .stat-card.replied .value { color: var(--success); }
 
+    /* Analytics Charts Grid */
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); padding: 1.2rem; border-radius: 8px; min-height: 280px; }
+    .chart-card h4 { margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-muted); }
+
     /* Controls & Toolbar */
     .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .search-filter { display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1; }
     .search-input { padding: 0.6rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.9rem; min-width: 240px; flex: 1; }
     .filter-select { padding: 0.6rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.9rem; cursor: pointer; }
-    .bulk-actions { display: flex; gap: 0.5rem; }
 
     /* Submissions Table */
     .table-responsive { overflow-x: auto; }
@@ -68,20 +76,21 @@
     .badge-unread { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
     .badge-read { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
     .badge-replied { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-tag { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
 
     .msg-preview { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
     .actions-cell { display: flex; gap: 0.4rem; }
 
     /* Modal Overlay */
-    .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; padding: 1rem; z-index: 100; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; }
+    .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; padding: 1rem; z-index: 100; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; }
     .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
     .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
     .modal-close:hover { color: var(--text); }
     
     .detail-group { margin-bottom: 1.2rem; }
     .detail-group label { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; }
-    .detail-group p { font-size: 1rem; line-height: 1.5; color: var(--text); background: var(--bg); padding: 0.8rem; border-radius: 4px; border: 1px solid var(--border); white-space: pre-wrap; }
+    .detail-group p, .detail-group textarea { font-size: 0.95rem; line-height: 1.5; color: var(--text); background: var(--bg); padding: 0.8rem; border-radius: 4px; border: 1px solid var(--border); white-space: pre-wrap; }
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
     .hidden { display: none !important; }
@@ -93,7 +102,7 @@
   <div class="container">
     <!-- Login View -->
     <div id="loginView" class="login-wrapper">
-      <h2>Admin Login</h2>
+      <h2>Executive Login</h2>
       <form id="loginForm">
         <div class="form-group">
           <label>Username</label>
@@ -112,10 +121,11 @@
     <div id="dashboardView" class="hidden">
       <div class="header">
         <div>
-          <h2>Owner Dashboard</h2>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Manage client submissions and lead interactions</p>
+          <h2>Operations & Lead Dashboard</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Khushal Gehlot Portfolio Analytics & Lead CRM</p>
         </div>
         <div class="header-actions">
+          <button class="btn btn-success btn-small" id="exportCsvBtn">📥 Export CSV</button>
           <button class="btn btn-secondary btn-small" id="refreshBtn">🔄 Refresh</button>
           <button class="btn btn-danger btn-small" id="logoutBtn">Logout</button>
         </div>
@@ -124,7 +134,7 @@
       <!-- Quick Stats Bar -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="label">Total Messages</div>
+          <div class="label">Total Inquiries</div>
           <div class="value" id="statTotal">0</div>
         </div>
         <div class="stat-card unread">
@@ -132,8 +142,20 @@
           <div class="value" id="statUnread">0</div>
         </div>
         <div class="stat-card replied">
-          <div class="label">Replied</div>
+          <div class="label">Replied Leads</div>
           <div class="value" id="statReplied">0</div>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Section -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4>Lead Inflow Over Time</h4>
+          <canvas id="timelineChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Service Demand Breakdown</h4>
+          <canvas id="serviceChart"></canvas>
         </div>
       </div>
 
@@ -163,8 +185,8 @@
               <th>Date</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Type / Timeline</th>
-              <th>Message</th>
+              <th>Help Needed</th>
+              <th>Priority Tag</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -177,13 +199,16 @@
     </div>
   </div>
 
-  <!-- Message Detail Modal -->
+  <!-- Detailed Lead CRM Modal -->
   <div id="detailModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div>
           <h3 id="modalSubject">Subject Line</h3>
-          <span id="modalStatusBadge" class="badge">unread</span>
+          <div style="display:flex; gap:0.5rem; margin-top:0.4rem;">
+            <span id="modalStatusBadge" class="badge">unread</span>
+            <span id="modalTagBadge" class="badge badge-tag">General</span>
+          </div>
         </div>
         <button class="modal-close" id="closeModalBtn">&times;</button>
       </div>
@@ -201,11 +226,11 @@
 
       <div class="detail-grid">
         <div class="detail-group">
-          <label>Help Type</label>
+          <label>Service / Help Type</label>
           <p id="modalType">-</p>
         </div>
         <div class="detail-group">
-          <label>Timeline</label>
+          <label>Project Timeline</label>
           <p id="modalTimeline">-</p>
         </div>
       </div>
@@ -215,9 +240,30 @@
         <p id="modalMessage">-</p>
       </div>
 
-      <div class="header-actions" style="margin-top: 1.5rem; justify-content: flex-end;">
-        <a id="modalReplyBtn" class="btn" target="_blank" href="#">✉️ Reply via Email</a>
-        <button class="btn btn-secondary" id="modalToggleStatusBtn">Toggle Status</button>
+      <!-- Lead Tagging & Internal Notes -->
+      <div class="detail-grid">
+        <div class="detail-group">
+          <label>Assign Lead Tag</label>
+          <select id="modalTagSelect" class="form-group" style="padding:0.6rem;">
+            <option value="General">General Inquiry</option>
+            <option value="High Priority">🔥 High Priority</option>
+            <option value="Quoted">💰 Quoted / Proposal Sent</option>
+            <option value="Follow Up">⏳ Follow Up Needed</option>
+            <option value="Closed / Won">✅ Closed / Won</option>
+          </select>
+        </div>
+        <div class="detail-group">
+          <label>Internal Private Note</label>
+          <textarea id="modalInternalNote" rows="2" placeholder="Add confidential notes (budget, call details)..."></textarea>
+        </div>
+      </div>
+
+      <div class="header-actions" style="margin-top: 1rem; justify-content: space-between;">
+        <button class="btn btn-secondary btn-small" id="saveDetailsBtn">💾 Save Notes & Tag</button>
+        <div style="display:flex; gap:0.5rem;">
+          <a id="modalReplyBtn" class="btn" target="_blank" href="#">✉️ Send Email</a>
+          <button class="btn btn-secondary" id="modalToggleStatusBtn">Toggle Status</button>
+        </div>
       </div>
     </div>
   </div>
@@ -227,6 +273,8 @@
     let authToken = localStorage.getItem('kg_admin_token');
     let allSubmissions = [];
     let activeSubmission = null;
+    let timelineChartInstance = null;
+    let serviceChartInstance = null;
 
     // DOM Elements
     const loginView = document.getElementById('loginView');
@@ -243,13 +291,17 @@
     const closeModalBtn = document.getElementById('closeModalBtn');
     const modalSubject = document.getElementById('modalSubject');
     const modalStatusBadge = document.getElementById('modalStatusBadge');
+    const modalTagBadge = document.getElementById('modalTagBadge');
     const modalName = document.getElementById('modalName');
     const modalEmail = document.getElementById('modalEmail');
     const modalType = document.getElementById('modalType');
     const modalTimeline = document.getElementById('modalTimeline');
     const modalMessage = document.getElementById('modalMessage');
+    const modalTagSelect = document.getElementById('modalTagSelect');
+    const modalInternalNote = document.getElementById('modalInternalNote');
     const modalReplyBtn = document.getElementById('modalReplyBtn');
     const modalToggleStatusBtn = document.getElementById('modalToggleStatusBtn');
+    const saveDetailsBtn = document.getElementById('saveDetailsBtn');
 
     function checkAuth() {
       if (authToken) {
@@ -312,6 +364,7 @@
         const data = await res.json();
         allSubmissions = data.submissions || [];
         updateStats();
+        renderCharts();
         applyFilterAndSearch();
       } catch (err) {
         console.error('Error loading submissions:', err);
@@ -322,6 +375,59 @@
       document.getElementById('statTotal').textContent = allSubmissions.length;
       document.getElementById('statUnread').textContent = allSubmissions.filter(s => s.status === 'unread').length;
       document.getElementById('statReplied').textContent = allSubmissions.filter(s => s.status === 'replied').length;
+    }
+
+    function renderCharts() {
+      // 1. Service Breakdown Chart
+      const serviceCounts = {};
+      allSubmissions.forEach(s => {
+        const type = s.projectType || 'Other';
+        serviceCounts[type] = (serviceCounts[type] || 0) + 1;
+      });
+
+      const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+      if (serviceChartInstance) serviceChartInstance.destroy();
+      serviceChartInstance = new Chart(serviceCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(serviceCounts),
+          datasets: [{
+            data: Object.values(serviceCounts),
+            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#9aa0b0' } } } }
+      });
+
+      // 2. Timeline Inflow Chart
+      const timelineCounts = {};
+      allSubmissions.forEach(s => {
+        const date = new Date(s.createdAt).toLocaleDateString();
+        timelineCounts[date] = (timelineCounts[date] || 0) + 1;
+      });
+
+      const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+      if (timelineChartInstance) timelineChartInstance.destroy();
+      timelineChartInstance = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+          labels: Object.keys(timelineCounts).reverse(),
+          datasets: [{
+            label: 'Submissions',
+            data: Object.values(timelineCounts).reverse(),
+            borderColor: '#3b82f6',
+            tension: 0.3,
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            x: { ticks: { color: '#9aa0b0' } },
+            y: { ticks: { color: '#9aa0b0' }, beginAtZero: true }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
     }
 
     function applyFilterAndSearch() {
@@ -365,8 +471,8 @@
           <td>${dateStr}</td>
           <td><strong>${escapeHtml(item.fullName)}</strong></td>
           <td><a href="mailto:${escapeHtml(item.email)}" onclick="event.stopPropagation()" style="color:var(--accent);">${escapeHtml(item.email)}</a></td>
-          <td>${escapeHtml(item.projectType)}<br><small style="color:var(--text-muted);">${escapeHtml(item.timeline)}</small></td>
-          <td class="msg-preview">${escapeHtml(item.message)}</td>
+          <td>${escapeHtml(item.projectType)}</td>
+          <td><span class="badge badge-tag">${escapeHtml(item.tag || 'General')}</span></td>
           <td><span class="badge badge-${item.status}">${item.status}</span></td>
           <td onclick="event.stopPropagation()">
             <div class="actions-cell">
@@ -394,11 +500,14 @@
       modalStatusBadge.textContent = item.status;
       modalStatusBadge.className = `badge badge-${item.status}`;
 
+      modalTagBadge.textContent = item.tag || 'General';
+      modalTagSelect.value = item.tag || 'General';
+      modalInternalNote.value = item.internalNote || '';
+
       modalReplyBtn.href = `mailto:${encodeURIComponent(item.email)}?subject=Re: ${encodeURIComponent(item.subject)}`;
 
       detailModal.classList.remove('hidden');
 
-      // Auto mark as read if opened while unread
       if (item.status === 'unread') {
         toggleStatus(item._id, 'unread', false);
       }
@@ -406,6 +515,27 @@
 
     closeModalBtn.addEventListener('click', () => detailModal.classList.add('hidden'));
     detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.add('hidden'); });
+
+    saveDetailsBtn.addEventListener('click', async () => {
+      if (!activeSubmission) return;
+      try {
+        await fetch(`${API_BASE}/api/admin/submissions/${activeSubmission._id}/details`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}` 
+          },
+          body: JSON.stringify({ 
+            tag: modalTagSelect.value, 
+            internalNote: modalInternalNote.value 
+          })
+        });
+        alert('Notes and tag updated successfully!');
+        loadSubmissions();
+      } catch (err) {
+        console.error('Failed to save details:', err);
+      }
+    });
 
     modalToggleStatusBtn.addEventListener('click', () => {
       if (!activeSubmission) return;
@@ -450,6 +580,34 @@
         console.error('Failed to delete submission:', err);
       }
     }
+
+    // CSV Export
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      if (!allSubmissions.length) return alert('No data to export.');
+
+      const headers = ['Date', 'Name', 'Email', 'Subject', 'Help Type', 'Timeline', 'Tag', 'Status', 'Message', 'Internal Note'];
+      const rows = allSubmissions.map(s => [
+        new Date(s.createdAt).toLocaleDateString(),
+        `"${s.fullName.replace(/"/g, '""')}"`,
+        `"${s.email.replace(/"/g, '""')}"`,
+        `"${s.subject.replace(/"/g, '""')}"`,
+        `"${s.projectType.replace(/"/g, '""')}"`,
+        `"${s.timeline.replace(/"/g, '""')}"`,
+        `"${(s.tag || 'General').replace(/"/g, '""')}"`,
+        `"${s.status.replace(/"/g, '""')}"`,
+        `"${s.message.replace(/"/g, '""')}"`,
+        `"${(s.internalNote || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `leads_export_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
 
     // Bulk Actions
     selectAllCheckbox.addEventListener('change', (e) => {
