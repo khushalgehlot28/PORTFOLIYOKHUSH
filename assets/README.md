@@ -1,5 +1,6 @@
 # Portfolio assets
 
-- Replace `profile.svg` with a real portrait or workspace image when available. Keep the same path or update `index.html`.
-- Add your real resume as `Khushal-Gehlot-Resume.pdf`.
-- Add project screenshots under `assets/projects/` and add their paths to the project data in `js/app.js`.
+- Optimized portfolio photos are stored in `images/` as WebP. Original photos remain at the project root.
+- `images/social-card.jpg` is the Open Graph and Twitter preview image; update it alongside `../social-card.svg` when the design changes.
+- The resume download is `resume123.pdf`.
+- Add project screenshots under `projects/` and add their paths to the project data in `../js/app.js`.
