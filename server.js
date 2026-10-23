@@ -7,10 +7,18 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const requiredEnvironment = ['MONGO_URI', 'ADMIN_USER', 'ADMIN_PASS', 'JWT_SECRET'];
+
+// Fallback resolver for environment variable aliases
+const getAdminUser = () => process.env.ADMIN_USER || process.env.ADMIN_USERNAME;
+const getAdminPass = () => process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD;
 
 function validateEnvironment() {
-  const missing = requiredEnvironment.filter((name) => !process.env[name]?.trim());
+  const missing = [];
+  if (!process.env.MONGO_URI?.trim()) missing.push('MONGO_URI');
+  if (!process.env.JWT_SECRET?.trim()) missing.push('JWT_SECRET');
+  if (!getAdminUser()?.trim()) missing.push('ADMIN_USER (or ADMIN_USERNAME)');
+  if (!getAdminPass()?.trim()) missing.push('ADMIN_PASS (or ADMIN_PASSWORD)');
+
   if (missing.length) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
@@ -96,8 +104,8 @@ app.post('/api/submit', async (req, res) => {
 // --- ADMIN ROUTES ---
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
-  const adminUser = process.env.ADMIN_USER;
-  const adminPass = process.env.ADMIN_PASS;
+  const adminUser = getAdminUser();
+  const adminPass = getAdminPass();
 
   if (username === adminUser && password === adminPass) {
     const token = jwt.sign(
