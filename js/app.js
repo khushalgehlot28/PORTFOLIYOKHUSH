@@ -9,7 +9,14 @@ const config = {
   name: 'Khushal Gehlot',
   email: 'khushalgehlot28@gmail.com',
   location: 'India / working worldwide',
-  socialLinks: { github: '', linkedin: '', instagram: '', youtube: '', x: '' }
+  socialLinks: { 
+    github: 'https://github.com/khushalgehlot28', 
+    linkedin: 'https://www.linkedin.com/in/khushal-gehlot-68a2162ba/', 
+    instagram: 'https://www.instagram.com/khushalgehlot28/', 
+    youtube: '', 
+    x: 'https://x.com/I_am_strnger_ji',
+    facebook: 'https://www.facebook.com/khushal.gehlot.33'
+  }
 };
 
 const state = {
@@ -201,19 +208,28 @@ function renderTestimonials() {
 }
 
 function renderSocials() {
-  const labels = { github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram', youtube: 'YouTube', x: 'X / Twitter' };
+  const labels = { 
+    github: 'GitHub', 
+    linkedin: 'LinkedIn', 
+    instagram: 'Instagram', 
+    facebook: 'Facebook',
+    youtube: 'YouTube', 
+    x: 'X / Twitter' 
+  };
   document.querySelectorAll('.social-strip[id]').forEach((container) => {
+    container.replaceChildren();
     Object.entries(config.socialLinks).forEach(([key, url]) => {
       if (!url) return;
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', labels[key]);
-      link.textContent = key === 'linkedin' ? 'in' : key === 'x' ? 'X' : key.slice(0, 2).toUpperCase();
+      link.setAttribute('aria-label', labels[key] || key);
+      link.textContent = key === 'linkedin' ? 'in' : key === 'facebook' ? 'fb' : key === 'x' ? 'X' : key.slice(0, 2).toUpperCase();
       container.append(link);
     });
     if (!container.children.length) container.hidden = true;
+    else container.hidden = false;
   });
 }
 
@@ -261,7 +277,7 @@ function openCaseStudy(project, trigger) {
   if (project.image) {
     const image = document.createElement('img');
     image.className = 'case-study-image';
-    image.src = project.image; // Fix: Updated from post.image
+    image.src = project.image;
     image.alt = project.imageAlt || project.title;
     image.width = project.imageWidth || 800;
     image.height = project.imageHeight || 600;
