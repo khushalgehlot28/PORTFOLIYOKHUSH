@@ -1,27 +1,41 @@
 require('dotenv').config();
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
 const app = express();
+const requiredEnvironment = ['MONGO_URI', 'ADMIN_USER', 'ADMIN_PASS', 'JWT_SECRET'];
+
+function validateEnvironment() {
+  const missing = requiredEnvironment.filter((name) => !process.env[name]?.trim());
+  if (missing.length) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  let mongoUrl;
+  try {
+    mongoUrl = new URL(process.env.MONGO_URI);
+  } catch (error) {
+    throw new Error('MONGO_URI must be a valid MongoDB connection URI.');
+  }
+
+  if (!['mongodb:', 'mongodb+srv:'].includes(mongoUrl.protocol) || !mongoUrl.hostname) {
+    throw new Error('MONGO_URI must use mongodb:// or mongodb+srv:// and include a host.');
+  }
+}
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI;
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Successfully connected to MongoDB Atlas Cloud!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
 
 // Schema for Contact Submissions
 const submissionSchema = new mongoose.Schema({
@@ -38,7 +52,7 @@ const submissionSchema = new mongoose.Schema({
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
-// JWT Auth Middleware (MUST BE DECLARED BEFORE PROTECTED ROUTES)
+// JWT Auth Middleware
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -47,7 +61,7 @@ const authenticateAdmin = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.admin = decoded;
     next();
   } catch (err) {
@@ -56,8 +70,6 @@ const authenticateAdmin = (req, res, next) => {
 };
 
 // --- PUBLIC ROUTES ---
-
-// Submit Contact Form
 app.post('/api/submit', async (req, res) => {
   try {
     const fullName = req.body.name || req.body.fullName;
@@ -82,17 +94,15 @@ app.post('/api/submit', async (req, res) => {
 });
 
 // --- ADMIN ROUTES ---
-
-// Admin Login
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
-  const adminUser = process.env.ADMIN_USERNAME || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || 'password123';
+  const adminUser = process.env.ADMIN_USER;
+  const adminPass = process.env.ADMIN_PASS;
 
   if (username === adminUser && password === adminPass) {
     const token = jwt.sign(
       { username }, 
-      process.env.JWT_SECRET || 'fallback_secret', 
+      process.env.JWT_SECRET,
       { expiresIn: '12h' }
     );
     return res.json({ success: true, token });
@@ -101,7 +111,6 @@ app.post('/api/admin/login', (req, res) => {
   return res.status(401).json({ success: false, error: 'Invalid credentials.' });
 });
 
-// Get All Submissions (Protected)
 app.get('/api/admin/submissions', authenticateAdmin, async (req, res) => {
   try {
     const submissions = await Submission.find().sort({ createdAt: -1 });
@@ -111,7 +120,6 @@ app.get('/api/admin/submissions', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Update Submission Status (Mark Read/Replied) (Protected)
 app.patch('/api/admin/submissions/:id', authenticateAdmin, async (req, res) => {
   try {
     const { status } = req.body;
@@ -122,7 +130,6 @@ app.patch('/api/admin/submissions/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Update Submission Tag & Internal Notes (Protected)
 app.patch('/api/admin/submissions/:id/details', authenticateAdmin, async (req, res) => {
   try {
     const { tag, internalNote } = req.body;
@@ -137,7 +144,6 @@ app.patch('/api/admin/submissions/:id/details', authenticateAdmin, async (req, r
   }
 });
 
-// Delete Submission (Protected)
 app.delete('/api/admin/submissions/:id', authenticateAdmin, async (req, res) => {
   try {
     await Submission.findByIdAndDelete(req.params.id);
@@ -147,5 +153,21 @@ app.delete('/api/admin/submissions/:id', authenticateAdmin, async (req, res) => 
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Server Initialization
+async function startServer() {
+  validateEnvironment();
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log('Successfully connected to MongoDB.');
+
+  const PORT = process.env.PORT || 3000;
+  return app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error(`Server startup failed: ${error.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = { app, startServer, validateEnvironment };

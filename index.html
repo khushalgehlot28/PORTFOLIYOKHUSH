@@ -17,6 +17,7 @@
   <meta name="twitter:title" content="Khushal Gehlot | Developer Portfolio">
   <meta name="twitter:description" content="Thoughtful digital products, responsive interfaces, and useful tools by Khushal Gehlot.">
   <meta name="twitter:image" content="https://khushalgehlot.com/social-card.svg">
+  <meta name="api-base-url" content="">
   <link rel="canonical" href="https://khushalgehlot.com/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script type="application/ld+json">
@@ -50,6 +51,7 @@
   <link rel="stylesheet" href="css/variables.css?v=20260925">
   <link rel="stylesheet" href="css/styles.css?v=20260925">
   <link rel="stylesheet" href="css/components.css?v=20260925">
+  <script src="js/api-config.js"></script>
   <script src="js/app.js?v=20260925-blog" type="module" defer></script>
 </head>
 <body>
@@ -209,7 +211,7 @@
             <h2 class="section-heading contact-heading">Have a project in mind?</h2>
             <p class="lede contact-lede">Tell me what you are building, learning, or exploring. Share a little context and I will reply with a thoughtful next step.</p>
 
-            <form id="contactForm" class="contact-form" action="https://formspree.io/f/mkjgzygj" method="POST" novalidate>
+            <form id="contactForm" class="contact-form" action="/api/submit" method="POST" novalidate>
               <div class="field field-trap" aria-hidden="true">
                 <label for="website">Website</label>
                 <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">

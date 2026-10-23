@@ -1,9 +1,14 @@
+// Global API helper resolving relative or configurable host endpoints
+window.API_BASE_URL = window.API_BASE_URL || window.location.origin;
+window.apiUrl = function(path) {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${window.API_BASE_URL}${cleanPath}`;
+};
+
 const config = {
   name: 'Khushal Gehlot',
   email: 'khushalgehlot28@gmail.com',
   location: 'India / working worldwide',
-  // Live Render backend endpoint:
-  formspreeEndpoint: 'https://portfoliyokhush.onrender.com/api/submit',
   socialLinks: { github: '', linkedin: '', instagram: '', youtube: '', x: '' }
 };
 
@@ -163,7 +168,7 @@ function renderTestimonials() {
   if (!state.testimonials.length) {
     const emptyState = addText(list, 'div', '', 'empty-state');
     addText(emptyState, 'h3', 'The work comes first.');
-    addText(emptyState, 'p', 'Verified feedback will be added as collaborations become public. Until then, the project details show the decisions, process, and care behind each build.');
+    addText(emptyState, 'p', 'Verified feedback will be added as collaborations become public.');
     const link = document.createElement('a');
     link.className = 'btn btn-primary';
     link.href = '#contact';
@@ -256,10 +261,10 @@ function openCaseStudy(project, trigger) {
   if (project.image) {
     const image = document.createElement('img');
     image.className = 'case-study-image';
-    image.src = post.image;
-    image.alt = project.imageAlt;
-    image.width = project.imageWidth;
-    image.height = project.imageHeight;
+    image.src = project.image; // Fix: Updated from post.image
+    image.alt = project.imageAlt || project.title;
+    image.width = project.imageWidth || 800;
+    image.height = project.imageHeight || 600;
     image.loading = 'lazy';
     image.decoding = 'async';
     image.addEventListener('error', () => image.remove());
@@ -334,7 +339,7 @@ function initTheme() {
   themeButton?.addEventListener('click', () => {
     const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-    try { localStorage.setItem('kg-theme', nextTheme); } catch (error) { /* Keep the toggle usable without storage. */ }
+    try { localStorage.setItem('kg-theme', nextTheme); } catch (error) { /* Keep toggle functional */ }
   });
 }
 
@@ -411,13 +416,11 @@ function initForm() {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    // Check html5 browser validation
     if (!form.checkValidity()) { 
       form.reportValidity(); 
       return; 
     }
 
-    // Check honeypot spam filter
     if (form.elements.website && form.elements.website.value) {
       console.warn('Submission cancelled by honeypot spam filter.');
       return;
@@ -430,16 +433,6 @@ function initForm() {
       button.textContent = 'Sending...';
     }
 
-    if (!config.formspreeEndpoint) {
-      if (status) status.textContent = 'The contact form is temporarily unavailable. Please try again later.';
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Send message';
-      }
-      return;
-    }
-
-    // Extract raw form entries and map them safely to plain JSON payload
     const rawFormData = new FormData(form);
     const payload = {
       name: rawFormData.get('name') || '',
@@ -450,10 +443,8 @@ function initForm() {
       message: rawFormData.get('message') || ''
     };
 
-    console.log('Sending JSON payload to Render endpoint:', payload);
-
     try {
-      const response = await fetch(config.formspreeEndpoint, { 
+      const response = await fetch(window.apiUrl('/api/submit'), {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json',
@@ -462,11 +453,9 @@ function initForm() {
         body: JSON.stringify(payload) 
       });
 
-      console.log('Backend response status code:', response.status);
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        console.error('Backend submission error:', result);
         showFormErrors(result.errors || [{ message: result.error || 'The message could not be sent.' }]);
         return;
       }
@@ -509,16 +498,6 @@ function initEnhancements() {
     });
     dialog.addEventListener('click', (event) => { if (event.target === event.currentTarget) closeCaseStudy(); });
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeCaseStudy(); });
-    dialog.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') { event.preventDefault(); closeCaseStudy(); return; }
-      if (event.key !== 'Tab') return;
-      const focusable = [...dialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter((element) => !element.disabled);
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    });
   }
   document.querySelector('.back-top')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   initRevealObserver();
