@@ -4,6 +4,9 @@ html { scroll-padding-top: calc(76px + env(safe-area-inset-top, 0px)); scroll-be
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -26,6 +29,7 @@ button, input, select, textarea { font: inherit; touch-action: manipulation; }
 button { cursor: pointer; }
 
 .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: clamp(24px, 5vw, 48px); }
+main { flex: 1; }
 
 section { padding: 96px 0; }
 .section-tight { padding: 56px 0; }
@@ -42,6 +46,7 @@ section { padding: 96px 0; }
 .lede { color: var(--text-muted); font-size: 1.15rem; max-width: 640px; font-weight: 400; margin-top: 16px; }
 
 .page { display: none; }
+.page:focus { outline: none; }
 .page.active { display: block; animation: fadeIn 0.4s ease; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
