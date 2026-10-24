@@ -167,7 +167,7 @@ const Project = mongoose.model('Project', projectSchema);
 app.get('/api/projects', async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });
-    return res.json({ success: true, projects });
+    return res.json(projects); // Returns array directly to match app.js loops
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Failed to fetch projects.' });
   }
@@ -219,6 +219,69 @@ app.delete('/api/admin/projects/:id', authenticateAdmin, async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to delete project.' });
   }
 });
+
+
+// =====================================================
+// --- BLOG POST SCHEMA & ROUTES (NEWLY ADDED) ---
+// =====================================================
+
+const postSchema = new mongoose.Schema({
+  title:       { type: String, required: true, trim: true },
+  category:    { type: String, required: true, trim: true },
+  date:        { type: String, required: true, trim: true }, // e.g., 'Experience 01'
+  readingTime: { type: String, required: true, trim: true }, // e.g., '4 min read'
+  excerpt:     { type: String, required: true, trim: true },
+  image:       { type: String, default: '', trim: true },
+  imageAlt:    { type: String, default: '', trim: true }
+}, { timestamps: true });
+
+const Post = mongoose.model('Post', postSchema);
+
+// --- PUBLIC BLOG POST ROUTES ---
+app.get('/api/posts', async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+    return res.json(posts); // Returns array directly to match app.js rendering loops
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to fetch posts.' });
+  }
+});
+
+// --- ADMIN BLOG POST ROUTES ---
+app.post('/api/admin/posts', authenticateAdmin, async (req, res) => {
+  try {
+    const { title, category, date, readingTime, excerpt, image, imageAlt } = req.body;
+    if (!title || !category || !excerpt) {
+      return res.status(400).json({ success: false, error: 'Title, category, and excerpt are required.' });
+    }
+
+    const newPost = new Post({ title, category, date, readingTime, excerpt, image, imageAlt });
+    const savedPost = await newPost.save();
+    return res.status(201).json({ success: true, post: savedPost });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to create blog post.' });
+  }
+});
+
+app.put('/api/admin/posts/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const updated = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    return res.json({ success: true, post: updated });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to update blog post.' });
+  }
+});
+
+app.delete('/api/admin/posts/:id', authenticateAdmin, async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
+    return res.json({ success: true, message: 'Blog post deleted successfully.' });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to delete blog post.' });
+  }
+});
+// =====================================================
+
 
 // --- ONE-CLICK SEED ROUTE ---
 app.post('/api/admin/projects/seed', authenticateAdmin, async (req, res) => {
