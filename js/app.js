@@ -67,6 +67,17 @@ function renderTiles(container, projects) {
     tile.tabIndex = 0;
     tile.setAttribute('role', 'button');
     tile.setAttribute('aria-label', `View case study: ${project.title}`);
+    
+    // Render project image if available
+    if (project.image) {
+      const img = document.createElement('img');
+      img.className = 'tile-image';
+      img.src = project.image;
+      img.alt = project.title;
+      img.loading = 'lazy';
+      tile.append(img);
+    }
+
     addText(tile, 'span', project.category, 'tag');
     addText(tile, 'span', String(index + 1).padStart(2, '0'), 'tile-index').setAttribute('aria-hidden', 'true');
     addText(tile, 'h3', project.title);
