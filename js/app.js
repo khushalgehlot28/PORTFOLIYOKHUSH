@@ -40,10 +40,8 @@ const state = {
   testimonials: []
 };
 
-const root = document.documentElement;
 const nav = document.querySelector('#navLinks');
 const menuButton = document.querySelector('#menuBtn');
-const themeButton = document.querySelector('#themeToggle');
 const navButtons = [...document.querySelectorAll('[data-page]')];
 const pages = [...document.querySelectorAll('.page')];
 let dialogTrigger = null;
@@ -208,24 +206,53 @@ function renderTestimonials() {
 }
 
 function renderSocials() {
-  const labels = { 
-    github: 'GitHub', 
-    linkedin: 'LinkedIn', 
-    instagram: 'Instagram', 
-    facebook: 'Facebook',
-    youtube: 'YouTube', 
-    x: 'X / Twitter' 
+  const icons = {
+    github: {
+      label: 'GitHub',
+      path: 'M12 2C6.48 2 2 6.58 2 12.26c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.22-3.37-1.22-.45-1.19-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.94.85.09-.66.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.24 9.24 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.93.68 1.88v2.79c0 .27.18.59.69.49A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z'
+    },
+    linkedin: {
+      label: 'LinkedIn',
+      path: 'M5.2 7.8a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM3.5 9.3h3.4v11.2H3.5zM9 9.3h3.3v1.5h.1a3.6 3.6 0 0 1 3.2-1.8c3.4 0 4 2.2 4 5v6.5h-3.4v-5.8c0-1.4 0-3.2-2-3.2s-2.2 1.5-2.2 3.1v5.9H9z'
+    },
+    instagram: {
+      label: 'Instagram',
+      path: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.3-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z'
+    },
+    facebook: {
+      label: 'Facebook',
+      path: 'M13.5 22v-8.2h2.8l.4-3.2h-3.2V8.5c0-.9.3-1.5 1.6-1.5h1.7V4.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.3v3.2h2.8V22h3.4Z'
+    },
+    youtube: {
+      label: 'YouTube',
+      path: 'M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z'
+    },
+    x: {
+      label: 'X / Twitter',
+      path: 'M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-5-7.1L5.7 22H2.5l7.3-8.4L1.9 2h6.5l4.5 6.5L18.9 2Zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20Z'
+    }
   };
   document.querySelectorAll('.social-strip[id]').forEach((container) => {
     container.replaceChildren();
     Object.entries(config.socialLinks).forEach(([key, url]) => {
       if (!url) return;
+      const icon = icons[key];
+      if (!icon) return;
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.setAttribute('aria-label', labels[key] || key);
-      link.textContent = key === 'linkedin' ? 'in' : key === 'facebook' ? 'fb' : key === 'x' ? 'X' : key.slice(0, 2).toUpperCase();
+      link.setAttribute('aria-label', icon.label);
+      link.title = icon.label;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', icon.path);
+      path.setAttribute('fill', 'currentColor');
+      svg.append(path);
+      link.append(svg);
       container.append(link);
     });
     if (!container.children.length) container.hidden = true;
@@ -334,29 +361,6 @@ function showPage(route, updateHash = true) {
   window.scrollTo({ top: 0, behavior: 'auto' });
   const targetPage = document.querySelector(`#page-${nextRoute}`);
   targetPage?.focus({ preventScroll: true });
-}
-
-function setTheme(theme) {
-  const dark = theme === 'dark';
-  if (dark) root.setAttribute('data-theme', 'dark');
-  else root.removeAttribute('data-theme');
-  if (themeButton) {
-    themeButton.setAttribute('aria-pressed', String(dark));
-    themeButton.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-  }
-}
-
-function initTheme() {
-  let savedTheme = 'light';
-  try {
-    savedTheme = localStorage.getItem('kg-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  } catch (error) { savedTheme = 'light'; }
-  setTheme(savedTheme);
-  themeButton?.addEventListener('click', () => {
-    const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    try { localStorage.setItem('kg-theme', nextTheme); } catch (error) { /* Keep toggle functional */ }
-  });
 }
 
 function initNavigation() {
@@ -520,7 +524,6 @@ function initEnhancements() {
 }
 
 function init() {
-  initTheme();
   initNavigation();
   renderHeroTitle();
   renderMarquee();
