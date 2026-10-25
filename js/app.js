@@ -450,14 +450,6 @@ function initForm() {
       return; 
     }
 
-    // Fixed Honeypot Check
-    const honeypotField = form.elements.website;
-    if (honeypotField && honeypotField.value.trim() !== '') {
-      console.warn('Submission cancelled by honeypot spam filter.');
-      if (status) status.textContent = 'Spam filter triggered. Please try again.';
-      return;
-    }
-
     clearFormErrors();
     const button = form.querySelector('button[type="submit"]');
     if (button) {
