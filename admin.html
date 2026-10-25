@@ -360,7 +360,19 @@
       try {
         const res = await fetch(window.apiUrl('/api/admin/submissions'), { headers: { 'Authorization': `Bearer ${authToken}` } });
         if (res.status === 401 || res.status === 403) return document.getElementById('logoutBtn').click();
-        const data = await res.json(); allSubmissions = data.submissions || [];
+        const data = await res.json();
+        allSubmissions = (Array.isArray(data.submissions) ? data.submissions : []).map(submission => ({
+          ...submission,
+          fullName: submission.fullName || submission.name || submission.clientName || '',
+          email: submission.email || '',
+          subject: submission.subject || '',
+          projectType: submission.projectType || submission.project_type || submission.service || submission.helpType || '',
+          timeline: submission.timeline || submission.time_line || '',
+          message: submission.message || '',
+          status: submission.status || 'unread',
+          tag: submission.tag || 'General',
+          internalNote: submission.internalNote || ''
+        }));
         updateStats(); renderCharts(); applyFilterAndSearch();
       } catch (err) { console.error(err); }
     }
@@ -383,7 +395,7 @@
 
     function applyFilterAndSearch() {
       const term = document.getElementById('searchInput').value.toLowerCase(); const stat = document.getElementById('filterSelect').value;
-      renderTable(allSubmissions.filter(s => (stat === 'all' || s.status === stat) && (s.fullName.toLowerCase().includes(term) || s.email.toLowerCase().includes(term))));
+      renderTable(allSubmissions.filter(s => (stat === 'all' || s.status === stat) && (`${s.fullName} ${s.email}`.toLowerCase().includes(term))));
     }
     document.getElementById('searchInput').addEventListener('input', applyFilterAndSearch); document.getElementById('filterSelect').addEventListener('change', applyFilterAndSearch);
 
@@ -397,8 +409,20 @@
     }
 
     function openModal(item) {
-      activeSubmission = item; document.getElementById('modalName').textContent = item.fullName; document.getElementById('modalMessage').textContent = item.message;
-      document.getElementById('modalStatusBadge').textContent = item.status; document.getElementById('detailModal').classList.remove('hidden');
+      activeSubmission = item;
+      const displayValue = value => typeof value === 'string' && value.trim() ? value : '-';
+      document.getElementById('modalSubject').textContent = displayValue(item.subject);
+      document.getElementById('modalName').textContent = displayValue(item.fullName);
+      document.getElementById('modalEmail').textContent = displayValue(item.email);
+      document.getElementById('modalType').textContent = displayValue(item.projectType);
+      document.getElementById('modalTimeline').textContent = displayValue(item.timeline);
+      document.getElementById('modalMessage').textContent = displayValue(item.message);
+      document.getElementById('modalStatusBadge').textContent = displayValue(item.status);
+      document.getElementById('modalTagBadge').textContent = displayValue(item.tag);
+      document.getElementById('modalTagSelect').value = item.tag;
+      document.getElementById('modalInternalNote').value = item.internalNote;
+      document.getElementById('modalReplyBtn').href = item.email ? `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent(`Re: ${item.subject || 'Your message'}`)}` : '#';
+      document.getElementById('detailModal').classList.remove('hidden');
     }
 
     async function toggleStatus(id, currentStatus) {
