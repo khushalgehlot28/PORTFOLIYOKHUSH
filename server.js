@@ -14,9 +14,6 @@ const getAdminPass = () => process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD;
 function validateEnvironment() {
   const missing = [];
   if (!process.env.MONGO_URI?.trim()) missing.push('MONGO_URI');
-  if (!process.env.JWT_SECRET?.trim()) missing.push('JWT_SECRET');
-  if (!getAdminUser()?.trim()) missing.push('ADMIN_USER (or ADMIN_USERNAME)');
-  if (!getAdminPass()?.trim()) missing.push('ADMIN_PASS (or ADMIN_PASSWORD)');
 
   if (missing.length) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
@@ -32,6 +29,14 @@ function validateEnvironment() {
   if (!['mongodb:', 'mongodb+srv:'].includes(mongoUrl.protocol) || !mongoUrl.hostname) {
     throw new Error('MONGO_URI must use mongodb:// or mongodb+srv:// and include a host.');
   }
+}
+
+function getAdminConfigurationErrors() {
+  const missing = [];
+  if (!process.env.JWT_SECRET?.trim()) missing.push('JWT_SECRET');
+  if (!getAdminUser()?.trim()) missing.push('ADMIN_USER (or ADMIN_USERNAME)');
+  if (!getAdminPass()?.trim()) missing.push('ADMIN_PASS (or ADMIN_PASSWORD)');
+  return missing;
 }
 
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' }));
@@ -58,6 +63,14 @@ const submissionSchema = new mongoose.Schema({
 const Submission = mongoose.model('Submission', submissionSchema);
 
 const authenticateAdmin = (req, res, next) => {
+  const missing = getAdminConfigurationErrors();
+  if (missing.length) {
+    return res.status(503).json({
+      success: false,
+      error: `Admin access is not configured. Set ${missing.join(', ')}.`
+    });
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, error: 'Unauthorized. Token missing.' });
@@ -97,6 +110,14 @@ app.post('/api/submit', async (req, res) => {
 });
 
 app.post('/api/admin/login', (req, res) => {
+  const missing = getAdminConfigurationErrors();
+  if (missing.length) {
+    return res.status(503).json({
+      success: false,
+      error: `Admin access is not configured. Set ${missing.join(', ')}.`
+    });
+  }
+
   const { username, password } = req.body;
   const adminUser = getAdminUser();
   const adminPass = getAdminPass();
@@ -307,6 +328,10 @@ async function startServer() {
   validateEnvironment();
   await mongoose.connect(process.env.MONGO_URI);
   console.log('Successfully connected to MongoDB.');
+  const missingAdminConfiguration = getAdminConfigurationErrors();
+  if (missingAdminConfiguration.length) {
+    console.warn(`Admin dashboard is disabled. Set ${missingAdminConfiguration.join(', ')} to enable it.`);
+  }
 
   const PORT = process.env.PORT || 3000;
   return app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
